@@ -10,33 +10,128 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
+import { Route as ConformidadeRouteImport } from './routes/conformidade'
+import { Route as IntegracoesRouteImport } from './routes/integracoes'
+import { Route as PlanosDeAcaoRouteImport } from './routes/planos-de-acao'
+import { Route as RelatoriosRouteImport } from './routes/relatorios'
+import { Route as RiscosRouteImport } from './routes/riscos'
+import { Route as TransacoesRouteImport } from './routes/transacoes'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ConfiguracoesRoute = ConfiguracoesRouteImport.update({
+  id: '/configuracoes',
+  path: '/configuracoes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConformidadeRoute = ConformidadeRouteImport.update({
+  id: '/conformidade',
+  path: '/conformidade',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IntegracoesRoute = IntegracoesRouteImport.update({
+  id: '/integracoes',
+  path: '/integracoes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlanosDeAcaoRoute = PlanosDeAcaoRouteImport.update({
+  id: '/planos-de-acao',
+  path: '/planos-de-acao',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RelatoriosRoute = RelatoriosRouteImport.update({
+  id: '/relatorios',
+  path: '/relatorios',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RiscosRoute = RiscosRouteImport.update({
+  id: '/riscos',
+  path: '/riscos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TransacoesRoute = TransacoesRouteImport.update({
+  id: '/transacoes',
+  path: '/transacoes',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/configuracoes': typeof ConfiguracoesRoute
+  '/conformidade': typeof ConformidadeRoute
+  '/integracoes': typeof IntegracoesRoute
+  '/planos-de-acao': typeof PlanosDeAcaoRoute
+  '/relatorios': typeof RelatoriosRoute
+  '/riscos': typeof RiscosRoute
+  '/transacoes': typeof TransacoesRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/configuracoes': typeof ConfiguracoesRoute
+  '/conformidade': typeof ConformidadeRoute
+  '/integracoes': typeof IntegracoesRoute
+  '/planos-de-acao': typeof PlanosDeAcaoRoute
+  '/relatorios': typeof RelatoriosRoute
+  '/riscos': typeof RiscosRoute
+  '/transacoes': typeof TransacoesRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/configuracoes': typeof ConfiguracoesRoute
+  '/conformidade': typeof ConformidadeRoute
+  '/integracoes': typeof IntegracoesRoute
+  '/planos-de-acao': typeof PlanosDeAcaoRoute
+  '/relatorios': typeof RelatoriosRoute
+  '/riscos': typeof RiscosRoute
+  '/transacoes': typeof TransacoesRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/configuracoes'
+    | '/conformidade'
+    | '/integracoes'
+    | '/planos-de-acao'
+    | '/relatorios'
+    | '/riscos'
+    | '/transacoes'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/configuracoes'
+    | '/conformidade'
+    | '/integracoes'
+    | '/planos-de-acao'
+    | '/relatorios'
+    | '/riscos'
+    | '/transacoes'
+  id:
+    | '__root__'
+    | '/'
+    | '/configuracoes'
+    | '/conformidade'
+    | '/integracoes'
+    | '/planos-de-acao'
+    | '/relatorios'
+    | '/riscos'
+    | '/transacoes'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ConfiguracoesRoute: typeof ConfiguracoesRoute
+  ConformidadeRoute: typeof ConformidadeRoute
+  IntegracoesRoute: typeof IntegracoesRoute
+  PlanosDeAcaoRoute: typeof PlanosDeAcaoRoute
+  RelatoriosRoute: typeof RelatoriosRoute
+  RiscosRoute: typeof RiscosRoute
+  TransacoesRoute: typeof TransacoesRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +143,67 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/configuracoes': {
+      id: '/configuracoes'
+      path: '/configuracoes'
+      fullPath: '/configuracoes'
+      preLoaderRoute: typeof ConfiguracoesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/conformidade': {
+      id: '/conformidade'
+      path: '/conformidade'
+      fullPath: '/conformidade'
+      preLoaderRoute: typeof ConformidadeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/integracoes': {
+      id: '/integracoes'
+      path: '/integracoes'
+      fullPath: '/integracoes'
+      preLoaderRoute: typeof IntegracoesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/planos-de-acao': {
+      id: '/planos-de-acao'
+      path: '/planos-de-acao'
+      fullPath: '/planos-de-acao'
+      preLoaderRoute: typeof PlanosDeAcaoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/relatorios': {
+      id: '/relatorios'
+      path: '/relatorios'
+      fullPath: '/relatorios'
+      preLoaderRoute: typeof RelatoriosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/riscos': {
+      id: '/riscos'
+      path: '/riscos'
+      fullPath: '/riscos'
+      preLoaderRoute: typeof RiscosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/transacoes': {
+      id: '/transacoes'
+      path: '/transacoes'
+      fullPath: '/transacoes'
+      preLoaderRoute: typeof TransacoesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ConfiguracoesRoute: ConfiguracoesRoute,
+  ConformidadeRoute: ConformidadeRoute,
+  IntegracoesRoute: IntegracoesRoute,
+  PlanosDeAcaoRoute: PlanosDeAcaoRoute,
+  RelatoriosRoute: RelatoriosRoute,
+  RiscosRoute: RiscosRoute,
+  TransacoesRoute: TransacoesRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
