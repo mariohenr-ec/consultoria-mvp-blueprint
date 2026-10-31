@@ -13,8 +13,8 @@ export const Route = createFileRoute("/transacoes")({
 
 const days = Array.from({ length: 13 }, (_, i) => ({
   d: ["01 Jun", "", "08 Jun", "", "", "15 Jun", "", "22 Jun", "", "", "29 Jun", "", ""][i] || `${i}`,
-  a: [130, 148, 158, 128, 120, 160, 152, 158, 160, 130, 150, 172, 180][i] * 1000,
-  t: [18, 22, 32, 28, 25, 24, 28, 38, 30, 22, 26, 30, 32][i] * 1000 * 0.6,
+  a: [130, 148, 158, 128, 120, 160, 152, 158, 160, 130, 150, 172, 180][i]! * 1000,
+  t: [18, 22, 32, 28, 25, 24, 28, 38, 30, 22, 26, 30, 32][i]! * 1000 * 0.6,
 }));
 const riskLevelTx: Record<string, "Crítico" | "Alto" | "Médio" | "Baixo"> = { "45859": "Baixo" };
 
@@ -55,7 +55,7 @@ function Transactions() {
             { name: "Transferências", value: 24, tone: "low", display: "24%" },
             { name: "Compras", value: 18, tone: "medium", display: "18%" },
             { name: "Recebimentos", value: 11, tone: "critical", display: "11%" },
-            { name: "Ajustes", value: 6, tone: "info-soft" as any, display: "6%" },
+            { name: "Ajustes", value: 6, tone: "soft", display: "6%" },
             { name: "Outros", value: 3, tone: "neutral", display: "3%" },
           ]} />
         </Panel>

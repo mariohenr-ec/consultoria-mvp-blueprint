@@ -59,7 +59,7 @@ function Risks() {
           </div>
         </Panel>
         <Panel title="Riscos por categoria" action={<MiniSelect options={["Por quantidade", "Por valor"]} />}>
-          <HBars items={topRisks} labelWidth={160} />
+          <HBars items={topRisks} labelWidth={180} />
         </Panel>
         <Panel title="Origem dos riscos">
           <DonutPanel center="37" caption="achados" data={[
@@ -84,7 +84,7 @@ function Risks() {
 const tabs = ["Detalhes", "Contexto", "Evidências (3)", "Transações relacionadas (2)", "Histórico", "Análise de IA"];
 
 function RiskDetail({ f }: { f: Finding }) {
-  const [tab, setTab] = useState(tabs[0]);
+  const [tab, setTab] = useState<string>(tabs[0]!);
   const [steps, setSteps] = useState([
     { t: "Investigar a transação", who: "Ana Silva", d: "15/06/2024", s: "Em andamento" },
     { t: "Solicitar documentação", who: "Ana Silva", d: "20/06/2024", s: "Pendente" },
@@ -109,7 +109,7 @@ function RiskDetail({ f }: { f: Finding }) {
       </div>
       <div className="mt-3 flex gap-8 border-b text-[13.5px]">
         {tabs.map((t) => (
-          <button key={t} onClick={() => setTab(t)} className={cn("-mb-px border-b-2 px-2 pb-2", tab === t ? "border-info font-medium text-info" : "border-transparent text-muted-foreground")}>{t}</button>
+          <button key={t} onClick={() => setTab(t as string)} className={cn("-mb-px border-b-2 px-2 pb-2", tab === t ? "border-info font-medium text-info" : "border-transparent text-muted-foreground")}>{t}</button>
         ))}
       </div>
       {tab !== "Detalhes" ? (
@@ -132,7 +132,7 @@ function RiskDetail({ f }: { f: Finding }) {
           <div className="rounded-lg border p-3">
             <div className="mb-2 flex justify-between"><span className="text-[14px] font-semibold">Evidências</span><button onClick={() => soon("Todas as evidências")} className="text-[12px] text-info">Ver todas (3)</button></div>
             {[["Comprovante de pagamento.pdf", "156 KB"], ["Nota fiscal #9932.pdf", "320 KB"], ["Política de compras (v2).pdf", "1,2 MB"]].map(([n, s]) => (
-              <button key={n} onClick={() => soon(n)} className="flex w-full items-center gap-3 py-1.5 text-left text-[12.5px]"><FileText className="h-6 w-6 text-info" strokeWidth={1.5} /><span>{n}<div className="text-muted-foreground">{s}</div></span></button>
+              <button key={n} onClick={() => soon(n ?? "")} className="flex w-full items-center gap-3 py-1.5 text-left text-[12.5px]"><FileText className="h-6 w-6 text-info" strokeWidth={1.5} /><span>{n}<div className="text-muted-foreground">{s}</div></span></button>
             ))}
           </div>
           <div>

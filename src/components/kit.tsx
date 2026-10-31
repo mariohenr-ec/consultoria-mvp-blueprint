@@ -30,7 +30,7 @@ import logo from "@/assets/triantena-logo.png.asset.json";
 import { cn } from "@/lib/utils";
 
 /* ---------- Tones ---------- */
-export type Tone = "critical" | "high" | "medium" | "low" | "info" | "neutral" | "violet";
+export type Tone = "critical" | "high" | "medium" | "low" | "info" | "neutral" | "violet" | "soft";
 export const toneVar: Record<Tone, string> = {
   critical: "var(--critical)",
   high: "var(--high)",
@@ -39,6 +39,7 @@ export const toneVar: Record<Tone, string> = {
   info: "var(--info)",
   neutral: "var(--neutral)",
   violet: "var(--violet)",
+  soft: "var(--info-soft)",
 };
 const toneText: Record<Tone, string> = {
   critical: "text-critical",
@@ -48,6 +49,7 @@ const toneText: Record<Tone, string> = {
   info: "text-info",
   neutral: "text-muted-foreground",
   violet: "text-violet",
+  soft: "text-info",
 };
 const toneSoft: Record<Tone, string> = {
   critical: "bg-critical/10 text-critical",
@@ -57,6 +59,7 @@ const toneSoft: Record<Tone, string> = {
   info: "bg-info/10 text-info",
   neutral: "bg-neutral/20 text-muted-foreground",
   violet: "bg-violet/10 text-violet",
+  soft: "bg-info-soft/30 text-info",
 };
 
 export const soon = (what: string) => toast.info(`${what}`, { description: "Disponível na próxima evolução do protótipo." });
