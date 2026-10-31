@@ -28,7 +28,7 @@ const models: { title: string; desc: string; icon: React.ElementType; tone: Tone
   { title: "Planos de Ação", desc: "Acompanhamento de ações, prazos e responsáveis.", icon: ClipboardList, tone: "medium", type: "Planos de Ação" },
   { title: "Transações Atípicas", desc: "Análise detalhada de transações com anomalias.", icon: BarChart3, tone: "violet", type: "Transações" },
 ];
-const solid: Record<Tone, string> = { info: "bg-info", critical: "bg-critical", low: "bg-low", medium: "bg-medium", violet: "bg-violet", high: "bg-high", neutral: "bg-neutral" };
+const solid: Record<Tone, string> = { info: "bg-info", critical: "bg-critical", low: "bg-low", medium: "bg-medium", violet: "bg-violet", high: "bg-high", neutral: "bg-neutral", soft: "bg-info-soft" };
 
 function Reports() {
   const [reps, setReps] = useState(initial);

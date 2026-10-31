@@ -55,7 +55,7 @@ function Transactions() {
             { name: "Transferências", value: 24, tone: "low", display: "24%" },
             { name: "Compras", value: 18, tone: "medium", display: "18%" },
             { name: "Recebimentos", value: 11, tone: "critical", display: "11%" },
-            { name: "Ajustes", value: 6, tone: "info-soft" as any, display: "6%" },
+            { name: "Ajustes", value: 6, tone: "soft", display: "6%" },
             { name: "Outros", value: 3, tone: "neutral", display: "3%" },
           ]} />
         </Panel>
