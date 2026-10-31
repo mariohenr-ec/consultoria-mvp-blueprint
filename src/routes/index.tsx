@@ -64,10 +64,10 @@ function Overview() {
       <div className="mt-3 grid grid-cols-3 gap-3">
         <Panel title="Planos de ação" action={<Link to="/planos-de-acao"><LinkButton onClick={() => {}}>Ver todos os planos</LinkButton></Link>}>
           <DonutPanel center="48" caption="planos" data={[
-            { name: "Em andamento", value: 22, tone: "info" },
-            { name: "Pendente", value: 18, tone: "medium" },
-            { name: "Concluído", value: 6, tone: "low" },
-            { name: "Atrasado", value: 2, tone: "critical" },
+            { name: "Em andamento", value: 22, tone: "info", display: "" },
+            { name: "Pendente", value: 18, tone: "medium", display: "" },
+            { name: "Concluído", value: 6, tone: "low", display: "" },
+            { name: "Atrasado", value: 2, tone: "critical", display: "" },
           ]} />
         </Panel>
         <Panel title="Transações por sistema">
