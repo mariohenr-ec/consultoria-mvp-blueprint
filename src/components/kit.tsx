@@ -29,6 +29,7 @@ import {
 import { LogOut, User } from "lucide-react";
 import logo from "@/assets/triantena-logotipo.png.asset.json";
 import { cn } from "@/lib/utils";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   DropdownMenu,
@@ -529,9 +530,19 @@ export function TableToolbar({
         </label>
       ))}
       {extra ?? (
-        <button onClick={() => toast.success("Exportação iniciada", { description: "O arquivo CSV será baixado em instantes." })} className="flex h-9 items-center gap-2 rounded-md border bg-card px-4 text-[13px] font-medium hover:bg-muted">
-          <Download className="h-4 w-4" /> Exportar
-        </button>
+        <DropdownMenu>
+          <DropdownMenuTrigger className="flex h-9 items-center gap-2 rounded-md border bg-card px-4 text-[13px] font-medium outline-none hover:bg-muted">
+            <Download className="h-4 w-4" /> Exportar <ChevronDown className="h-3.5 w-3.5" />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onSelect={() => toast.success("Exportação em PDF iniciada", { description: "O arquivo PDF será baixado em instantes." })}>
+              <FileText className="h-4 w-4 text-critical" /> Exportar em PDF
+            </DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => toast.success("Exportação em XLSX iniciada", { description: "A planilha Excel será baixada em instantes." })}>
+              <FileText className="h-4 w-4 text-low" /> Exportar em XLSX
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       )}
     </div>
   );
@@ -539,8 +550,8 @@ export function TableToolbar({
 
 export function DataTable({ head, rows, checkbox, onRowClick, selected }: { head: string[]; rows: { key: string; cells: ReactNode[] }[]; checkbox?: boolean; onRowClick?: (k: string) => void; selected?: string }) {
   return (
-    <div className="overflow-hidden rounded-lg border">
-      <table className="w-full text-[13px]">
+    <div className="overflow-x-auto rounded-lg border">
+      <table className="w-full min-w-max text-[13px]">
         <thead className="bg-table-head text-left">
           <tr>
             {checkbox && <th className="w-10 px-3 py-2"><input type="checkbox" className="h-4 w-4 accent-primary" /></th>}
@@ -578,25 +589,52 @@ export function DataTable({ head, rows, checkbox, onRowClick, selected }: { head
 export type AlertItem = { tone: Tone; title: string; desc: string; when?: string };
 const alertIcon: Record<string, React.ElementType> = { critical: AlertTriangle, medium: AlertTriangle, info: Info, low: CheckCircle2 };
 export function AlertList({ items, chevron }: { items: AlertItem[]; chevron?: boolean }) {
+  const [open, setOpen] = useState<AlertItem | null>(null);
+  const OpenIcon = open ? alertIcon[open.tone] ?? Info : Info;
   return (
-    <ul className="flex flex-col gap-2">
-      {items.map((a) => {
-        const Icon = alertIcon[a.tone] ?? Info;
-        return (
-          <li key={a.title} className="flex items-center gap-3 rounded-lg border px-3 py-2">
-            <span className={cn("grid h-9 w-9 shrink-0 place-items-center rounded-md", toneSoft[a.tone])}>
-              <Icon className={cn("h-5 w-5", a.tone === "medium" && "text-high")} />
-            </span>
-            <div className="min-w-0 flex-1">
-              <div className="truncate text-[13px] font-medium">{a.title}</div>
-              <div className="truncate text-[12px] text-muted-foreground">{a.desc}</div>
-            </div>
-            {a.when && <span className="self-start whitespace-nowrap text-[11.5px] text-muted-foreground">{a.when}</span>}
-            {chevron && <ChevronRight className="h-4 w-4 text-muted-foreground" />}
-          </li>
-        );
-      })}
-    </ul>
+    <>
+      <ul className="flex flex-col gap-2">
+        {items.map((a) => {
+          const Icon = alertIcon[a.tone] ?? Info;
+          return (
+            <li key={a.title}>
+              <button onClick={() => setOpen(a)} className="flex w-full items-center gap-3 rounded-lg border px-3 py-2 text-left transition-colors hover:bg-muted">
+                <span className={cn("grid h-9 w-9 shrink-0 place-items-center rounded-md", toneSoft[a.tone])}>
+                  <Icon className={cn("h-5 w-5", a.tone === "medium" && "text-high")} />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-[13px] font-medium">{a.title}</div>
+                  <div className="truncate text-[12px] text-muted-foreground">{a.desc}</div>
+                </div>
+                {a.when && <span className="self-start whitespace-nowrap text-[11.5px] text-muted-foreground">{a.when}</span>}
+                {chevron && <ChevronRight className="h-4 w-4 text-muted-foreground" />}
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+      <Dialog open={!!open} onOpenChange={(o) => !o && setOpen(null)}>
+        <DialogContent className="max-w-md">
+          {open && (
+            <>
+              <DialogHeader>
+                <div className="flex items-center gap-3">
+                  <span className={cn("grid h-11 w-11 shrink-0 place-items-center rounded-lg", toneSoft[open.tone])}>
+                    <OpenIcon className={cn("h-6 w-6", open.tone === "medium" && "text-high")} />
+                  </span>
+                  <DialogTitle className="text-[17px] leading-snug">{open.title}</DialogTitle>
+                </div>
+                <DialogDescription className="pt-2 text-[14px]">{open.desc}</DialogDescription>
+              </DialogHeader>
+              {open.when && <p className="text-[12px] text-muted-foreground">Registrado {open.when}</p>}
+              <DialogFooter>
+                <button onClick={() => setOpen(null)} className="h-9 rounded-md bg-primary px-4 text-[13px] font-medium text-primary-foreground hover:bg-primary/90">Entendi</button>
+              </DialogFooter>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
 

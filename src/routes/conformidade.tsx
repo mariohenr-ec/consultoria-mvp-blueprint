@@ -60,10 +60,10 @@ function Compliance() {
       <div className="mt-3 grid grid-cols-3 gap-3">
         <Panel title="Status dos controles">
           <DonutPanel center="124" caption="controles" data={[
-            { name: "Conformes", value: 88, tone: "low", display: "88 (71%)" },
-            { name: "Não conformes", value: 24, tone: "critical", display: "24 (19%)" },
-            { name: "Em análise", value: 8, tone: "info", display: "8 (6%)" },
-            { name: "Não aplicáveis", value: 4, tone: "neutral", display: "4 (3%)" },
+            { name: "Conformes", value: 88, tone: "low", display: "" },
+            { name: "Não conformes", value: 24, tone: "critical", display: "" },
+            { name: "Em análise", value: 8, tone: "info", display: "" },
+            { name: "Não aplicáveis", value: 4, tone: "neutral", display: "" },
           ]} />
         </Panel>
         <Panel title="Conformidade por política" action={<MiniSelect options={["Por política"]} />}>
