@@ -64,10 +64,10 @@ function Overview() {
       <div className="mt-3 grid grid-cols-3 gap-3">
         <Panel title="Planos de ação" action={<Link to="/planos-de-acao"><LinkButton onClick={() => {}}>Ver todos os planos</LinkButton></Link>}>
           <DonutPanel center="48" caption="planos" data={[
-            { name: "Em andamento", value: 22, tone: "info", display: "22 (46%)" },
-            { name: "Pendente", value: 18, tone: "medium", display: "18 (38%)" },
-            { name: "Concluído", value: 6, tone: "low", display: "6 (13%)" },
-            { name: "Atrasado", value: 2, tone: "critical", display: "2 (4%)" },
+            { name: "Em andamento", value: 22, tone: "info" },
+            { name: "Pendente", value: 18, tone: "medium" },
+            { name: "Concluído", value: 6, tone: "low" },
+            { name: "Atrasado", value: 2, tone: "critical" },
           ]} />
         </Panel>
         <Panel title="Transações por sistema">
@@ -86,7 +86,7 @@ function Overview() {
             </ResponsiveContainer>
           </div>
         </Panel>
-        <Panel title="Integrações ativas" action={<button onClick={() => soon("Gerenciar integrações")} className="h-8 rounded-md border px-3 text-[12px] hover:bg-muted">Gerenciar</button>}>
+        <Panel title="Integrações ativas" action={<Link to="/integracoes" className="inline-flex h-8 items-center rounded-md border px-3 text-[12px] hover:bg-muted">Gerenciar</Link>}>
           <ul className="flex flex-col gap-3 text-[12.5px]">
             {[
               { icon: <span className="rounded bg-info px-1 text-[10px] font-bold italic text-primary-foreground">SAP</span>, n: "ERP (SAP)", t: "10 minutos" },

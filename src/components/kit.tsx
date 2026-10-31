@@ -402,7 +402,7 @@ export function DonutLegend({ data }: { data: Slice[] }) {
             <span className="h-3 w-3 rounded-full" style={{ background: toneVar[d.tone] }} />
             {d.name}
           </span>
-          <span className="tabular-nums">{d.display ?? d.value}</span>
+          <span className="tabular-nums">{d.display ?? ""}</span>
         </li>
       ))}
     </ul>
