@@ -140,4 +140,3 @@ html[data-cvd="tritan"] {
 }
 html[data-cvd="mono"] { filter: grayscale(1) contrast(1.1); }
 html[data-large-text="true"] { font-size: 112.5%; }
-html[data-large-text="true"] body { zoom: 1.08; }
