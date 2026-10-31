@@ -132,7 +132,7 @@ function RiskDetail({ f }: { f: Finding }) {
           <div className="rounded-lg border p-3">
             <div className="mb-2 flex justify-between"><span className="text-[14px] font-semibold">Evidências</span><button onClick={() => soon("Todas as evidências")} className="text-[12px] text-info">Ver todas (3)</button></div>
             {[["Comprovante de pagamento.pdf", "156 KB"], ["Nota fiscal #9932.pdf", "320 KB"], ["Política de compras (v2).pdf", "1,2 MB"]].map(([n, s]) => (
-              <button key={n} onClick={() => soon(n)} className="flex w-full items-center gap-3 py-1.5 text-left text-[12.5px]"><FileText className="h-6 w-6 text-info" strokeWidth={1.5} /><span>{n}<div className="text-muted-foreground">{s}</div></span></button>
+              <button key={n} onClick={() => soon(n ?? "")} className="flex w-full items-center gap-3 py-1.5 text-left text-[12.5px]"><FileText className="h-6 w-6 text-info" strokeWidth={1.5} /><span>{n}<div className="text-muted-foreground">{s}</div></span></button>
             ))}
           </div>
           <div>
