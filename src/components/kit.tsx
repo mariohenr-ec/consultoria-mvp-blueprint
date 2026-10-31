@@ -1,4 +1,5 @@
-import { type ReactNode, useState } from "react";
+import { type ReactNode, useEffect, useState } from "react";
+import { applyA11y, loadA11y } from "@/lib/a11y";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Cell, Pie, PieChart, ResponsiveContainer } from "recharts";
 import { toast } from "sonner";
@@ -143,6 +144,7 @@ const nav = [
 
 export function AppShell({ children }: { children: ReactNode }) {
   const path = useRouterState({ select: (s) => s.location.pathname });
+  useEffect(() => { applyA11y(loadA11y()); }, []);
   return (
     <div className="flex min-h-screen w-full">
       <aside className="fixed inset-y-0 left-0 z-20 flex w-[190px] flex-col bg-sidebar text-sidebar-foreground">
