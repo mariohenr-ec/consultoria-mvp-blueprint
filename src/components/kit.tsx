@@ -26,8 +26,73 @@ import {
   CheckCircle2,
   Triangle,
 } from "lucide-react";
-import logo from "@/assets/triantena-logo.png.asset.json";
+import { LogOut, User } from "lucide-react";
+import logo from "@/assets/triantena-logotipo.png.asset.json";
 import { cn } from "@/lib/utils";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+const initialNotifs = [
+  { id: 1, tone: "critical" as const, title: "Pagamento acima do limite", desc: "Transação #45872 de R$ 250.000,00 no ERP.", when: "Há 10 min" },
+  { id: 2, tone: "high" as const, title: "Fornecedor sem cadastro", desc: "Achado #45871 aguarda análise.", when: "Há 1 h" },
+  { id: 3, tone: "info" as const, title: "Integração com alerta", desc: "Sistema de Compras com falha de sincronização.", when: "Há 3 h" },
+];
+
+function NotificationsBell() {
+  const [items, setItems] = useState(initialNotifs.map((n) => ({ ...n, read: false })));
+  const unread = items.filter((i) => !i.read).length;
+  return (
+    <Popover>
+      <PopoverTrigger className="relative" aria-label="Notificações">
+        <Bell className="h-5 w-5" strokeWidth={1.75} />
+        {unread > 0 && (
+          <span className="absolute -right-1.5 -top-1.5 grid h-4 w-4 place-items-center rounded-full bg-critical text-[9px] font-bold text-primary-foreground">
+            {unread}
+          </span>
+        )}
+      </PopoverTrigger>
+      <PopoverContent align="end" className="w-80 p-0">
+        <div className="flex items-center justify-between border-b px-4 py-3">
+          <span className="text-[14px] font-semibold">Notificações</span>
+          <button
+            className="text-[12px] text-info hover:underline disabled:opacity-50"
+            disabled={unread === 0}
+            onClick={() => setItems((p) => p.map((i) => ({ ...i, read: true })))}
+          >
+            Marcar todas como lidas
+          </button>
+        </div>
+        <ul className="max-h-80 overflow-auto">
+          {items.map((n) => (
+            <li key={n.id}>
+              <button
+                onClick={() => setItems((p) => p.map((i) => (i.id === n.id ? { ...i, read: true } : i)))}
+                className={cn("flex w-full gap-3 border-b px-4 py-3 text-left hover:bg-muted", !n.read && "bg-info/5")}
+              >
+                <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full" style={{ background: n.read ? "var(--neutral)" : toneVar[n.tone] }} />
+                <span className="min-w-0 flex-1">
+                  <span className={cn("block text-[13px]", !n.read && "font-semibold")}>{n.title}</span>
+                  <span className="block text-[12px] text-muted-foreground">{n.desc}</span>
+                  <span className="mt-0.5 block text-[11px] text-muted-foreground">{n.when}</span>
+                </span>
+              </button>
+            </li>
+          ))}
+        </ul>
+        <div className="px-4 py-2.5 text-center">
+          <Link to="/riscos" className="text-[12px] font-medium text-info hover:underline">Ver todos os achados</Link>
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+}
 
 /* ---------- Tones ---------- */
 export type Tone = "critical" | "high" | "medium" | "low" | "info" | "neutral" | "violet" | "soft";
@@ -80,8 +145,10 @@ export function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className="flex min-h-screen w-full">
       <aside className="fixed inset-y-0 left-0 z-20 flex w-[190px] flex-col bg-sidebar text-sidebar-foreground">
-        <div className="flex justify-center px-4 pb-4 pt-4">
-          <img src={logo.url} alt="Trianténa — Sapientia, Unitas, Legatum" className="h-[104px] w-auto" />
+        <div className="px-3 pb-4 pt-4">
+          <div className="overflow-hidden rounded-lg bg-card">
+            <img src={logo.url} alt="Trianténa — Sapientia, Unitas, Legatum" className="h-auto w-full scale-110" />
+          </div>
         </div>
         <nav className="flex flex-1 flex-col gap-1 px-2.5">
           {nav.map((n) => {
@@ -136,20 +203,37 @@ export function PageHeader({
       </div>
       <div className="flex flex-col items-end gap-3">
         <div className="flex items-center gap-5">
-          <button onClick={() => soon("3 notificações novas")} className="relative" aria-label="Notificações">
-            <Bell className="h-5 w-5" strokeWidth={1.75} />
-            <span className="absolute -right-1.5 -top-1.5 grid h-4 w-4 place-items-center rounded-full bg-critical text-[9px] font-bold text-primary-foreground">
-              3
-            </span>
-          </button>
-          <div className="flex items-center gap-2.5">
-            <div className="grid h-9 w-9 place-items-center rounded-full bg-primary text-[13px] font-semibold text-primary-foreground">CA</div>
-            <div className="leading-tight">
-              <div className="text-[14px] font-semibold">Carlos</div>
-              <div className="text-[12px] text-muted-foreground">Auditor Interno</div>
-            </div>
-            <ChevronDown className="ml-3 h-4 w-4" />
-          </div>
+          <NotificationsBell />
+          <DropdownMenu>
+            <DropdownMenuTrigger className="flex items-center gap-2.5 rounded-md text-left outline-none">
+              <div className="grid h-9 w-9 place-items-center rounded-full bg-primary text-[13px] font-semibold text-primary-foreground">CA</div>
+              <div className="leading-tight">
+                <div className="text-[14px] font-semibold">Carlos</div>
+                <div className="text-[12px] text-muted-foreground">Auditor Interno</div>
+              </div>
+              <ChevronDown className="ml-3 h-4 w-4" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-52">
+              <DropdownMenuLabel>
+                <div className="text-[13px]">Carlos</div>
+                <div className="text-[11px] font-normal text-muted-foreground">carlos@triantena.com</div>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link to="/configuracoes"><User className="h-4 w-4" />Meu perfil</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/configuracoes"><Settings className="h-4 w-4" />Configurações</Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                className="text-critical focus:text-critical"
+                onSelect={() => toast.success("Você saiu da sua conta", { description: "Sessão encerrada (simulação do protótipo)." })}
+              >
+                <LogOut className="h-4 w-4" />Log out
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
         <div className="flex items-center gap-2">
           <PeriodSelect value={period} />
