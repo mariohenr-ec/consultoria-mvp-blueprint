@@ -84,7 +84,7 @@ function Risks() {
 const tabs = ["Detalhes", "Contexto", "Evidências (3)", "Transações relacionadas (2)", "Histórico", "Análise de IA"];
 
 function RiskDetail({ f }: { f: Finding }) {
-  const [tab, setTab] = useState(tabs[0]);
+  const [tab, setTab] = useState<string>(tabs[0]!);
   const [steps, setSteps] = useState([
     { t: "Investigar a transação", who: "Ana Silva", d: "15/06/2024", s: "Em andamento" },
     { t: "Solicitar documentação", who: "Ana Silva", d: "20/06/2024", s: "Pendente" },
@@ -109,7 +109,7 @@ function RiskDetail({ f }: { f: Finding }) {
       </div>
       <div className="mt-3 flex gap-8 border-b text-[13.5px]">
         {tabs.map((t) => (
-          <button key={t} onClick={() => setTab(t)} className={cn("-mb-px border-b-2 px-2 pb-2", tab === t ? "border-info font-medium text-info" : "border-transparent text-muted-foreground")}>{t}</button>
+          <button key={t} onClick={() => setTab(t as string)} className={cn("-mb-px border-b-2 px-2 pb-2", tab === t ? "border-info font-medium text-info" : "border-transparent text-muted-foreground")}>{t}</button>
         ))}
       </div>
       {tab !== "Detalhes" ? (

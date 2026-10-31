@@ -55,7 +55,7 @@ function Reports() {
         <Panel title="Evolução dos principais indicadores" action={<MiniSelect options={["Últimos 6 meses"]} />}>
           <div className="h-[180px]">
             <ResponsiveContainer>
-              <ComposedChart data={months.map((m, i) => ({ m, t: [330, 345, 380, 380, 380, 395][i] * 1000, a: [12, 22, 20, 12, 18, 12][i], c: [78, 83, 87, 84, 86, 91][i] }))} margin={{ left: -6, right: -6, top: 4 }}>
+              <ComposedChart data={months.map((m, i) => ({ m, t: [330, 345, 380, 380, 380, 395][i]! * 1000, a: [12, 22, 20, 12, 18, 12][i]!, c: [78, 83, 87, 84, 86, 91][i]! }))} margin={{ left: -6, right: -6, top: 4 }}>
                 <CartesianGrid vertical={false} stroke="var(--border)" />
                 <XAxis dataKey="m" {...axis} />
                 <YAxis yAxisId="l" {...axis} tickFormatter={(v) => (v ? `${v / 1000}K` : "0")} domain={[0, 500000]} />

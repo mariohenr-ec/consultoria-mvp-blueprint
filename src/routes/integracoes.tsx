@@ -102,7 +102,7 @@ function Integrations() {
             <div className="rounded-lg bg-muted p-3 text-[12px]">
               <div className="mb-2 font-medium">Fontes de dados</div>
               {[["ERP", "ERP (SAP)"], ["Banco de dados", "Banco de dados"], ["Planilhas", "Planilhas (Excel)"], ["API", "API (RH)"], ["Outros", "Outros sistemas"]].map(([k, l]) => (
-                <div key={l} className="flex items-center gap-2 py-1"><span className="grid w-6 place-items-center">{icons[k]}</span>{l}</div>
+                <div key={l} className="flex items-center gap-2 py-1"><span className="grid w-6 place-items-center">{icons[k as string]}</span>{l}</div>
               ))}
             </div>
             <div className="flex flex-col items-center text-center text-[12.5px] font-medium">
