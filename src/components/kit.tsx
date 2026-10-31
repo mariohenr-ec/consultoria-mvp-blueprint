@@ -149,7 +149,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     <div className="flex min-h-screen w-full">
       <aside className="fixed inset-y-0 left-0 z-20 flex w-[190px] flex-col bg-sidebar text-sidebar-foreground">
         <div className="px-3 pb-4 pt-4">
-          <div className="overflow-hidden rounded-lg bg-card">
+          <div className="mx-auto w-[110px] overflow-hidden rounded-lg bg-card">
             <img src={logo.url} alt="Trianténa — Sapientia, Unitas, Legatum" className="h-auto w-full scale-110" />
           </div>
         </div>
