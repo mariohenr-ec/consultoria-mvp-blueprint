@@ -59,7 +59,7 @@ function Risks() {
           </div>
         </Panel>
         <Panel title="Riscos por categoria" action={<MiniSelect options={["Por quantidade", "Por valor"]} />}>
-          <HBars items={topRisks} labelWidth={160} />
+          <HBars items={topRisks} labelWidth={180} />
         </Panel>
         <Panel title="Origem dos riscos">
           <DonutPanel center="37" caption="achados" data={[

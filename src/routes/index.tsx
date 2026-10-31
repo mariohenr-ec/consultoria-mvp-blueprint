@@ -42,7 +42,7 @@ function Overview() {
           <ChartLegend items={[{ label: "Conformidade geral", tone: "low" }, { label: "Achados de risco", tone: "critical" }, { label: "Transações analisadas", tone: "info", square: true, soft: true }]} />
         </Panel>
         <Panel title="Principais riscos detectados" suffix="(últimos 30 dias)">
-          <HBars items={topRisks} labelWidth={170} />
+          <HBars items={topRisks} labelWidth={185} />
         </Panel>
         <Panel title="Distribuição dos achados">
           <DonutPanel center="37" caption="achados" data={[
