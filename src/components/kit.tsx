@@ -551,6 +551,16 @@ export function TableToolbar({
 }
 
 export function DataTable({ head, rows, checkbox, onRowClick, selected }: { head: string[]; rows: { key: string; cells: ReactNode[] }[]; checkbox?: boolean; onRowClick?: (k: string) => void; selected?: string }) {
+  const [hidden, setHidden] = useState<string[]>([]);
+  const [edits, setEdits] = useState<Record<string, string>>({});
+  const [renaming, setRenaming] = useState<{ key: string; col: number; label: string; value: string } | null>(null);
+  const catCol = head.findIndex((h) => h === "Categoria");
+  const descCol = head.findIndex((h) => h === "Descrição");
+  const visible = rows.filter((r) => !hidden.includes(r.key));
+  const startRename = (key: string, col: number, label: string, cells: ReactNode[]) => {
+    const cur = edits[`${key}:${col}`] ?? (typeof cells[col] === "string" ? (cells[col] as string) : "");
+    setRenaming({ key, col, label, value: cur });
+  };
   return (
     <div className="overflow-x-auto rounded-lg border">
       <table className="w-full min-w-max text-[13px]">
@@ -564,25 +574,57 @@ export function DataTable({ head, rows, checkbox, onRowClick, selected }: { head
           </tr>
         </thead>
         <tbody>
-          {rows.length === 0 && (
+          {visible.length === 0 && (
             <tr><td colSpan={head.length + 2} className="px-3 py-6 text-center text-muted-foreground">Nenhum resultado encontrado.</td></tr>
           )}
-          {rows.map((r) => (
+          {visible.map((r) => (
             <tr key={r.key} onClick={() => onRowClick?.(r.key)} className={cn("border-t", onRowClick && "cursor-pointer hover:bg-muted/60", selected === r.key && "bg-info/5")}>
               {checkbox && <td className="px-3 py-2" onClick={(e) => e.stopPropagation()}><input type="checkbox" className="h-4 w-4 accent-primary" /></td>}
               {r.cells.map((c, i) => (
-                <td key={i} className="whitespace-nowrap border-l px-3 py-2 first:border-l-0">{c}</td>
+                <td key={i} className="whitespace-nowrap border-l px-3 py-2 first:border-l-0">{edits[`${r.key}:${i}`] ?? c}</td>
               ))}
-              <td className="border-l px-3 py-2">
+              <td className="border-l px-3 py-2" onClick={(e) => e.stopPropagation()}>
                 <div className="flex items-center gap-5">
-                  <button aria-label="Visualizar" onClick={(e) => { if (!onRowClick) { e.stopPropagation(); soon("Visualização detalhada"); } }}><Eye className="h-4 w-4" /></button>
-                  <button aria-label="Mais ações" onClick={(e) => { e.stopPropagation(); soon("Mais ações"); }}><MoreHorizontal className="h-4 w-4" /></button>
+                  <button aria-label="Visualizar" onClick={() => (onRowClick ? onRowClick(r.key) : soon("Visualização detalhada"))}><Eye className="h-4 w-4" /></button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger aria-label="Mais ações" className="outline-none"><MoreHorizontal className="h-4 w-4" /></DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      {catCol >= 0 && <DropdownMenuItem onSelect={() => startRename(r.key, catCol, "Categoria", r.cells)}>Renomear Categoria</DropdownMenuItem>}
+                      {descCol >= 0 && <DropdownMenuItem onSelect={() => startRename(r.key, descCol, "Descrição", r.cells)}>Renomear Descrição</DropdownMenuItem>}
+                      {(catCol >= 0 || descCol >= 0) && <DropdownMenuSeparator />}
+                      <DropdownMenuItem className="text-critical focus:text-critical" onSelect={() => {
+                        setHidden((h) => [...h, r.key]);
+                        toast.success("Removido dos achados", { action: { label: "Desfazer", onClick: () => setHidden((h) => h.filter((k) => k !== r.key)) } });
+                      }}>Remover dos achados</DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
+      <Dialog open={!!renaming} onOpenChange={(o) => !o && setRenaming(null)}>
+        <DialogContent className="max-w-sm">
+          {renaming && (
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              const v = renaming.value.trim();
+              if (!v) return;
+              setEdits((p) => ({ ...p, [`${renaming.key}:${renaming.col}`]: v }));
+              toast.success(`${renaming.label} renomeada`);
+              setRenaming(null);
+            }}>
+              <DialogHeader><DialogTitle>Renomear {renaming.label}</DialogTitle></DialogHeader>
+              <input autoFocus value={renaming.value} onChange={(e) => setRenaming({ ...renaming, value: e.target.value })} className="mt-4 h-10 w-full rounded-md border bg-card px-3 text-[14px] outline-none focus:ring-2 focus:ring-ring" />
+              <DialogFooter className="mt-4">
+                <button type="button" onClick={() => setRenaming(null)} className="h-9 rounded-md border px-4 text-[13px] hover:bg-muted">Cancelar</button>
+                <button type="submit" className="h-9 rounded-md bg-primary px-4 text-[13px] font-medium text-primary-foreground hover:bg-primary/90">Salvar</button>
+              </DialogFooter>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
