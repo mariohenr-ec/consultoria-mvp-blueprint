@@ -38,7 +38,7 @@ export function LiveAnalysisDashboard({ title, subtitle }: { title: string; subt
     <PageHeader title={title} subtitle={subtitle} action="Nova análise" />
     {loading ? <p role="status">Carregando análises…</p> : error ? <div role="alert" className="flex items-center gap-3"><p>Não foi possível carregar suas análises.</p><Button onClick={() => refresh()}>Tentar novamente</Button></div> : <>
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2 border-b pb-3 text-sm text-muted-foreground"><span>{number(analyses.length)} análises salvas · Todos os períodos</span><span>{analyses.at(-1)?.start_date} — {analyses[0]?.end_date}</span></div>
-      <div className="grid grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 gap-3 2xl:grid-cols-4">
         <KpiCard icon={FileText} tone="info" value={number(stats.count)} label="Transações analisadas" />
         <KpiCard icon={AlertTriangle} tone="critical" value={number(stats.findings.length)} label="Achados de risco" />
         <KpiCard icon={ShieldCheck} tone="low" value={stats.compliance === null ? "—" : percent(stats.compliance)} label="Conformidade dos controles" />

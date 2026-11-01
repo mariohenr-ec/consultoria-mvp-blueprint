@@ -13,7 +13,7 @@ import { createAnalysis } from "@/lib/analysis.functions";
 const today = () => new Date().toISOString().slice(0, 10);
 const blank = (): TransactionInput => ({ id: "", date: today(), description: "", supplier: "", value: 0, category: "", type: "Pagamento", registered: true, approved: true, control: "Conforme" });
 function SelectField({ label, value, options, onChange }: { label: string; value: string; options: string[]; onChange: (s: string) => void }) {
-  return <label className="block text-sm">{label}<select value={value} onChange={e => onChange(e.target.value)} className="mt-1 h-9 w-full rounded-md border border-input bg-background px-2 text-sm">{options.map(o => <option key={o}>{o}</option>)}</select></label>;
+  return <label className="block text-sm">{label}<select aria-label={label} value={value} onChange={e => onChange(e.target.value)} className="mt-1 h-9 w-full rounded-md border border-input bg-background px-2 text-sm">{options.map(o => <option key={o}>{o}</option>)}</select></label>;
 }
 export function NewAnalysisDialog() {
   const state = useAnalyses();

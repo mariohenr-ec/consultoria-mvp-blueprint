@@ -354,7 +354,7 @@ export function KpiCard({
         <Icon className={plain ? "h-11 w-11" : "h-8 w-8"} strokeWidth={1.75} />
       </div>
       <div className="min-w-0">
-        <div className="text-[26px] font-bold leading-none">{value}</div>
+        <div className="break-words text-[26px] font-bold leading-tight">{value}</div>
         <div className="mt-1 text-[15px] text-foreground/80">{label}</div>
         {delta && (
           <div className="mt-1.5 flex items-center gap-2 text-[13px]">
