@@ -60,11 +60,15 @@ function Compliance() {
       <div className="mt-3 grid grid-cols-3 gap-3">
         <Panel title="Status dos controles">
           <DonutPanel center="124" caption="controles" data={[
-            { name: "Conformes", value: 88, tone: "low", display: "" },
-            { name: "Não conformes", value: 24, tone: "critical", display: "" },
-            { name: "Em análise", value: 8, tone: "info", display: "" },
-            { name: "Não aplicáveis", value: 4, tone: "neutral", display: "" },
-          ]} />
+            { name: "Conformes", value: 88, tone: "low" },
+            { name: "Não conformes", value: 24, tone: "critical" },
+            { name: "Em análise", value: 8, tone: "info" },
+            { name: "Não aplicáveis", value: 4, tone: "neutral" },
+          ].map((slice, _, slices) => ({
+            ...slice,
+            tone: slice.tone as "low" | "critical" | "info" | "neutral",
+            display: `${(slice.value / slices.reduce((total, item) => total + item.value, 0) * 100).toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%`,
+          }))} />
         </Panel>
         <Panel title="Conformidade por política" action={<MiniSelect options={["Por política"]} />}>
           <HBars max={100} labelWidth={130} items={[["Política de Compras", 95, "low"], ["Política Financeira", 88], ["Política de TI", 84], ["Política de RH", 91], ["Política Antifraude", 87], ["Outras políticas", 89]].map(([l, v, t]) => ({ label: l as string, value: v as number, display: `${v}%`, tone: (t as any) ?? "info" }))} />
