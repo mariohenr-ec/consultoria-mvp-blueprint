@@ -34,7 +34,7 @@ function AnalysisForm() {
     try {
       if (file.size > 10 * 1024 * 1024) throw new Error("Arquivo muito grande. Máximo: 10 MB.");
       let rows: unknown[][];
-      if (/\.xlsx$/i.test(file.name)) { const { default: read } = await import("read-excel-file/browser"); rows = await read(file); }
+      if (/\.xlsx$/i.test(file.name)) { const { readSheet } = await import("read-excel-file/browser"); rows = await readSheet(file); }
       else if (/\.csv$/i.test(file.name)) {
         const { default: Papa } = await import("papaparse");
         const parsed = Papa.parse<string[]>(await file.text(), { skipEmptyLines: true });
