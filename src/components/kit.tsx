@@ -30,6 +30,9 @@ import {
 import { LogOut, User } from "lucide-react";
 import logo from "@/assets/triantena-logotipo.png.asset.json";
 import { cn } from "@/lib/utils";
+import { useAnalyses } from "./analysis-provider";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "./ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
@@ -144,6 +147,7 @@ const nav = [
 
 export function AppShell({ children }: { children: ReactNode }) {
   const path = useRouterState({ select: (s) => s.location.pathname });
+  const analysisState = useAnalyses();
   useEffect(() => { applyA11y(loadA11y()); }, []);
   return (
     <div className="flex min-h-screen w-full">
@@ -182,7 +186,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           Configurações
         </Link>
       </aside>
-      <main className="ml-[190px] min-w-0 flex-1 px-5 pb-6 pt-4">{children}</main>
+      <main className="ml-[190px] min-w-0 flex-1 px-5 pb-6 pt-4">{!analysisState.loading && !analysisState.analyses.length && <div className="mb-3 border-b pb-2 text-xs text-muted-foreground">Dados demonstrativos · {analysisState.userId ? "Nenhuma análise salva" : "Entre para salvar suas análises"}</div>}{children}</main>
     </div>
   );
 }
@@ -198,6 +202,7 @@ export function PageHeader({
   period?: string;
   action?: string;
 }) {
+  const { setOpen, userId, email } = useAnalyses();
   return (
     <header className="mb-4 flex items-start justify-between gap-6">
       <div>
@@ -211,15 +216,15 @@ export function PageHeader({
             <DropdownMenuTrigger className="flex items-center gap-2.5 rounded-md text-left outline-none">
               <div className="grid h-9 w-9 place-items-center rounded-full bg-primary text-[13px] font-semibold text-primary-foreground">CA</div>
               <div className="leading-tight">
-                <div className="text-[14px] font-semibold">Carlos</div>
-                <div className="text-[12px] text-muted-foreground">Auditor Interno</div>
+                <div className="max-w-48 truncate text-[14px] font-semibold">{email || "Visitante"}</div>
+                <div className="text-[12px] text-muted-foreground">{userId ? "Auditor" : "Demonstração"}</div>
               </div>
               <ChevronDown className="ml-3 h-4 w-4" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-52">
               <DropdownMenuLabel>
-                <div className="text-[13px]">Carlos</div>
-                <div className="text-[11px] font-normal text-muted-foreground">carlos@triantena.com</div>
+                <div className="text-[13px]">{userId ? "Minha conta" : "Visitante"}</div>
+                <div className="truncate text-[11px] font-normal text-muted-foreground">{email}</div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
@@ -231,9 +236,9 @@ export function PageHeader({
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 className="text-critical focus:text-critical"
-                onSelect={() => toast.success("Você saiu da sua conta", { description: "Sessão encerrada (simulação do protótipo)." })}
+                onSelect={async () => { if (userId) { await supabase.auth.signOut(); toast.success("Você saiu da sua conta"); } else setOpen(true); }}
               >
-                <LogOut className="h-4 w-4" />Log out
+                <LogOut className="h-4 w-4" />{userId ? "Log out" : "Entrar"}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -241,12 +246,12 @@ export function PageHeader({
         <div className="flex items-center gap-2">
           <PeriodSelect value={period} />
           {action && (
-            <button
-              onClick={() => soon(action)}
+            <Button
+              onClick={() => action === "Nova análise" ? setOpen(true) : soon(action)}
               className="flex h-9 items-center gap-2 rounded-md bg-primary px-4 text-[13px] font-medium text-primary-foreground hover:bg-primary/90"
             >
               <Plus className="h-4 w-4" /> {action}
-            </button>
+            </Button>
           )}
         </div>
       </div>

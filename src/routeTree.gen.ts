@@ -15,6 +15,7 @@ import { Route as ConformidadeRouteImport } from './routes/conformidade'
 import { Route as IntegracoesRouteImport } from './routes/integracoes'
 import { Route as PlanosDeAcaoRouteImport } from './routes/planos-de-acao'
 import { Route as RelatoriosRouteImport } from './routes/relatorios'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as RiscosRouteImport } from './routes/riscos'
 import { Route as TransacoesRouteImport } from './routes/transacoes'
 
@@ -48,6 +49,11 @@ const RelatoriosRoute = RelatoriosRouteImport.update({
   path: '/relatorios',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RiscosRoute = RiscosRouteImport.update({
   id: '/riscos',
   path: '/riscos',
@@ -66,6 +72,7 @@ export interface FileRoutesByFullPath {
   '/integracoes': typeof IntegracoesRoute
   '/planos-de-acao': typeof PlanosDeAcaoRoute
   '/relatorios': typeof RelatoriosRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/riscos': typeof RiscosRoute
   '/transacoes': typeof TransacoesRoute
 }
@@ -76,6 +83,7 @@ export interface FileRoutesByTo {
   '/integracoes': typeof IntegracoesRoute
   '/planos-de-acao': typeof PlanosDeAcaoRoute
   '/relatorios': typeof RelatoriosRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/riscos': typeof RiscosRoute
   '/transacoes': typeof TransacoesRoute
 }
@@ -87,6 +95,7 @@ export interface FileRoutesById {
   '/integracoes': typeof IntegracoesRoute
   '/planos-de-acao': typeof PlanosDeAcaoRoute
   '/relatorios': typeof RelatoriosRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/riscos': typeof RiscosRoute
   '/transacoes': typeof TransacoesRoute
 }
@@ -99,6 +108,7 @@ export interface FileRouteTypes {
     | '/integracoes'
     | '/planos-de-acao'
     | '/relatorios'
+    | '/reset-password'
     | '/riscos'
     | '/transacoes'
   fileRoutesByTo: FileRoutesByTo
@@ -109,6 +119,7 @@ export interface FileRouteTypes {
     | '/integracoes'
     | '/planos-de-acao'
     | '/relatorios'
+    | '/reset-password'
     | '/riscos'
     | '/transacoes'
   id:
@@ -119,6 +130,7 @@ export interface FileRouteTypes {
     | '/integracoes'
     | '/planos-de-acao'
     | '/relatorios'
+    | '/reset-password'
     | '/riscos'
     | '/transacoes'
   fileRoutesById: FileRoutesById
@@ -130,6 +142,7 @@ export interface RootRouteChildren {
   IntegracoesRoute: typeof IntegracoesRoute
   PlanosDeAcaoRoute: typeof PlanosDeAcaoRoute
   RelatoriosRoute: typeof RelatoriosRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   RiscosRoute: typeof RiscosRoute
   TransacoesRoute: typeof TransacoesRoute
 }
@@ -178,6 +191,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RelatoriosRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/riscos': {
       id: '/riscos'
       path: '/riscos'
@@ -202,6 +222,7 @@ const rootRouteChildren: RootRouteChildren = {
   IntegracoesRoute: IntegracoesRoute,
   PlanosDeAcaoRoute: PlanosDeAcaoRoute,
   RelatoriosRoute: RelatoriosRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   RiscosRoute: RiscosRoute,
   TransacoesRoute: TransacoesRoute,
 }
