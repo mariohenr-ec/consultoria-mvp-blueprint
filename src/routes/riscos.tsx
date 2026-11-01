@@ -24,14 +24,14 @@ const weeks = Array.from({ length: 14 }, (_, i) => ({
 const wkLabel: Record<number, string> = { 0: "01 Jun", 3: "08 Jun", 6: "15 Jun", 9: "22 Jun", 12: "29 Jun" };
 
 function Risks() {
-  const { analyses } = useAnalyses();
+  const { analyses, userId, loading, error } = useAnalyses();
   const [q, setQ] = useState("");
   const [st, setSt] = useState("Todos os status");
   const [cat, setCat] = useState("Todas as categorias");
   const [sel, setSel] = useState<string>("45872");
   const rows = findings.filter((f) => (f.id + f.desc + f.supplier).toLowerCase().includes(q.toLowerCase()) && (st === "Todos os status" || f.status === st) && (cat === "Todas as categorias" || f.category === cat));
   const current = findings.find((f) => f.id === sel);
-  if (analyses.length) return <LiveAnalysisDashboard title="Riscos" subtitle="Identificação, análise e monitoramento de riscos nas análises salvas." />;
+  if (userId && (analyses.length || loading || error)) return <LiveAnalysisDashboard title="Riscos" subtitle="Identificação, análise e monitoramento de riscos nas análises salvas." />;
   return (
     <>
       <PageHeader title="Riscos" subtitle="Identificação, análise e monitoramento de riscos com base em 100% das transações." action="Nova regra de risco" />

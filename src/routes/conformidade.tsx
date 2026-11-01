@@ -18,12 +18,12 @@ const sevLabel = { Alto: "Alta", Médio: "Média", Baixo: "Baixa" } as const;
 const sevOverride: Record<string, "Alto" | "Médio" | "Baixo"> = { "45865": "Médio", "45859": "Baixo" };
 
 function Compliance() {
-  const { analyses } = useAnalyses();
+  const { analyses, userId, loading, error } = useAnalyses();
   const [q, setQ] = useState("");
   const [area, setArea] = useState("Todas as áreas");
   const [st, setSt] = useState("Todos os status");
   const rows = findings.filter((f) => (f.desc + f.control).toLowerCase().includes(q.toLowerCase()) && (area === "Todas as áreas" || f.area === area) && (st === "Todos os status" || f.status === st));
-  if (analyses.length) return <LiveAnalysisDashboard title="Conformidade" subtitle="Acompanhe o nível de conformidade da empresa, por área, sistema e política interna." />;
+  if (userId && (analyses.length || loading || error)) return <LiveAnalysisDashboard title="Conformidade" subtitle="Acompanhe o nível de conformidade da empresa, por área, sistema e política interna." />;
   return (
     <>
       <PageHeader title="Conformidade" subtitle="Acompanhe o nível de conformidade da empresa, por área, sistema e política interna." />

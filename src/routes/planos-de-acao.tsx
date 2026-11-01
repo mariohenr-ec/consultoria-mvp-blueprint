@@ -17,12 +17,12 @@ export const Route = createFileRoute("/planos-de-acao")({
 const evo = months.map((m, i) => ({ m, c: [4, 6, 7, 8, 9, 10][i], e: [5, 6, 8, 10, 13, 14][i], p: [6, 8, 11, 12, 14, 17][i], a: [1, 1, 2, 2, 2, 3][i] }));
 
 function Plans() {
-  const { analyses } = useAnalyses();
+  const { analyses, userId, loading, error } = useAnalyses();
   const [q, setQ] = useState("");
   const [st, setSt] = useState("Todos os status");
   const [ar, setAr] = useState("Todas as áreas");
   const rows = actionPlans.filter((p) => (p.id + p.desc + p.finding).toLowerCase().includes(q.toLowerCase()) && (st === "Todos os status" || p.status === st) && (ar === "Todas as áreas" || p.area === ar));
-  if (analyses.length) return <LiveAnalysisDashboard title="Planos de ação" subtitle="Acompanhe as ações corretivas das análises salvas." />;
+  if (userId && (analyses.length || loading || error)) return <LiveAnalysisDashboard title="Planos de ação" subtitle="Acompanhe as ações corretivas das análises salvas." />;
   return (
     <>
       <PageHeader title="Planos de ação" subtitle="Acompanhe, gerencie e garanta a execução das ações corretivas e preventivas da auditoria." action="Novo plano de ação" />

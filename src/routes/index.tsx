@@ -15,8 +15,8 @@ export const Route = createFileRoute("/")({
 const compliance = months.map((m, i) => ({ m, conf: [55, 66, 74, 70, 78, 84][i], tx: [42, 48, 55, 55, 60, 67][i] }));
 
 function Overview() {
-  const { analyses } = useAnalyses();
-  if (analyses.length) return <LiveAnalysisDashboard title="Visão geral" subtitle="Panorama da auditoria contínua com os principais indicadores e achados em tempo real." />;
+  const { analyses, userId, loading, error } = useAnalyses();
+  if (userId && (analyses.length || loading || error)) return <LiveAnalysisDashboard title="Visão geral" subtitle="Panorama da auditoria contínua com os principais indicadores e achados em tempo real." />;
   return (
     <>
       <PageHeader title="Visão geral" subtitle="Panorama da auditoria contínua com os principais indicadores e achados em tempo real." />

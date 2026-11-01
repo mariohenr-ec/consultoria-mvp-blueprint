@@ -21,14 +21,14 @@ const days = Array.from({ length: 13 }, (_, i) => ({
 const riskLevelTx: Record<string, "Crítico" | "Alto" | "Médio" | "Baixo"> = { "45859": "Baixo" };
 
 function Transactions() {
-  const { analyses } = useAnalyses();
+  const { analyses, userId, loading, error } = useAnalyses();
   const [q, setQ] = useState("");
   const [st, setSt] = useState("Todos os status");
   const [rk, setRk] = useState("Todos os riscos");
   const rows = findings
     .map((f) => ({ ...f, risk: riskLevelTx[f.id] ?? f.risk, value: f.id === "45859" ? "18.600,00" : f.value }))
     .filter((f) => (f.id + f.desc + f.supplier).toLowerCase().includes(q.toLowerCase()) && (st === "Todos os status" || f.status === st) && (rk === "Todos os riscos" || f.risk === rk));
-  if (analyses.length) return <LiveAnalysisDashboard title="Transações" subtitle="Análise e monitoramento de todas as transações para identificação de riscos e não conformidades." />;
+  if (userId && (analyses.length || loading || error)) return <LiveAnalysisDashboard title="Transações" subtitle="Análise e monitoramento de todas as transações para identificação de riscos e não conformidades." />;
   return (
     <>
       <PageHeader title="Transações" subtitle="Análise e monitoramento de todas as transações para identificação de riscos e não conformidades." action="Nova análise" />

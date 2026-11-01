@@ -33,7 +33,7 @@ const models: { title: string; desc: string; icon: React.ElementType; tone: Tone
 const solid: Record<Tone, string> = { info: "bg-info", critical: "bg-critical", low: "bg-low", medium: "bg-medium", violet: "bg-violet", high: "bg-high", neutral: "bg-neutral", soft: "bg-info-soft" };
 
 function Reports() {
-  const { analyses } = useAnalyses();
+  const { analyses, userId, loading, error } = useAnalyses();
   const [reps, setReps] = useState(initial);
   const [q, setQ] = useState("");
   const [tp, setTp] = useState("Todos os tipos");
@@ -45,7 +45,7 @@ function Reports() {
     toast.success(`${m.title} gerado`, { description: "Disponível na lista de relatórios gerados." });
   };
   const rows = reps.filter((r) => r.name.toLowerCase().includes(q.toLowerCase()) && (tp === "Todos os tipos" || r.type === tp));
-  if (analyses.length) return <LiveAnalysisDashboard title="Relatórios" subtitle="Resultados consolidados das análises salvas." />;
+  if (userId && (analyses.length || loading || error)) return <LiveAnalysisDashboard title="Relatórios" subtitle="Resultados consolidados das análises salvas." />;
   return (
     <>
       <PageHeader title="Relatórios" subtitle="Acompanhamento dos resultados da auditoria contínua com visões gerenciais e operacionais." period="Jan/2024 – Jun/2024" action="Gerar relatório" />
