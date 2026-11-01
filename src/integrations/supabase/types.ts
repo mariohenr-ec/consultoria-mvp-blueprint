@@ -14,7 +14,54 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      audit_analyses: {
+        Row: {
+          area: string
+          created_at: string
+          end_date: string
+          id: string
+          name: string
+          policy: string
+          reviewer: string
+          source: string
+          start_date: string
+          system: string
+          threshold: number
+          transactions: Json
+          user_id: string
+        }
+        Insert: {
+          area: string
+          created_at?: string
+          end_date: string
+          id?: string
+          name: string
+          policy?: string
+          reviewer: string
+          source: string
+          start_date: string
+          system: string
+          threshold: number
+          transactions: Json
+          user_id?: string
+        }
+        Update: {
+          area?: string
+          created_at?: string
+          end_date?: string
+          id?: string
+          name?: string
+          policy?: string
+          reviewer?: string
+          source?: string
+          start_date?: string
+          system?: string
+          threshold?: number
+          transactions?: Json
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

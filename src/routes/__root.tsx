@@ -14,6 +14,8 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AppShell } from "@/components/kit";
 import { Toaster } from "@/components/ui/sonner";
+import { AnalysisProvider } from "@/components/analysis-provider";
+import { NewAnalysisDialog } from "@/components/new-analysis";
 
 function NotFoundComponent() {
   return (
@@ -101,9 +103,9 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   return (
     <QueryClientProvider client={queryClient}>
-      <AppShell>
+      <AnalysisProvider><AppShell>
         <Outlet />
-      </AppShell>
+      </AppShell><NewAnalysisDialog /></AnalysisProvider>
       <Toaster position="top-right" richColors />
     </QueryClientProvider>
   );
