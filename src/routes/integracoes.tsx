@@ -5,6 +5,8 @@ import { AlertTriangle, ChevronRight, CircleCheck, Clock, Cloud, Database, FileS
 import { AlertList, ChartLegend, DataTable, DonutPanel, DotStatus, KpiCard, MiniSelect, PageHeader, Panel, TableToolbar, soon, type Tone } from "@/components/kit";
 import { axis } from "@/lib/data";
 import { pageHead } from "@/lib/head";
+import { useAnalyses } from "@/components/analysis-provider";
+import { LiveAnalysisDashboard } from "@/components/live-analysis-dashboard";
 
 export const Route = createFileRoute("/integracoes")({
   head: pageHead("Integrações", "Conecte suas fontes de dados e mantenha as informações sempre atualizadas para análise contínua."),
@@ -28,11 +30,13 @@ const integrations: { n: string; type: string; icon: string; sys: string; st: st
 const vol = ["20 Jun", "21 Jun", "22 Jun", "23 Jun", "24 Jun", "25 Jun", "26 Jun"].map((d, i) => ({ d, t: [10, 11, 11, 10, 12, 15, 17][i], c: [7, 9, 8, 7, 8, 11, 10][i], p: [1, 1, 1, 1, 1, 1, 1][i], o: [12, 11, 12, 12, 13, 12, 14][i] }));
 
 function Integrations() {
+  const { analyses } = useAnalyses();
   const [q, setQ] = useState("");
   const [st, setSt] = useState("Todos os status");
   const [tp, setTp] = useState("Todos os tipos");
   const [alerts, setAlerts] = useState(true);
   const rows = integrations.filter((i) => (i.n + i.sys).toLowerCase().includes(q.toLowerCase()) && (st === "Todos os status" || i.st === st) && (tp === "Todos os tipos" || i.type === tp));
+  if (analyses.length) return <LiveAnalysisDashboard title="Integrações" subtitle="Fontes de dados e importações das análises salvas." />;
   return (
     <>
       <PageHeader title="Integrações" subtitle="Conecte suas fontes de dados e mantenha as informações sempre atualizadas para análise contínua." action="Nova integração" />

@@ -4,6 +4,8 @@ import { AlertTriangle, ClipboardList, FileText, ShieldCheck, Database, Cloud, F
 import { ChartLegend, DataTable, DotStatus, DonutPanel, HBars, KpiCard, LinkButton, PageHeader, Panel, RiskBadge, StatusBadge, soon } from "@/components/kit";
 import { axis, findings, months, topRisks } from "@/lib/data";
 import { pageHead } from "@/lib/head";
+import { useAnalyses } from "@/components/analysis-provider";
+import { LiveAnalysisDashboard } from "@/components/live-analysis-dashboard";
 
 export const Route = createFileRoute("/")({
   head: pageHead("Visão geral", "Panorama da auditoria contínua com os principais indicadores e achados em tempo real."),
@@ -13,6 +15,8 @@ export const Route = createFileRoute("/")({
 const compliance = months.map((m, i) => ({ m, conf: [55, 66, 74, 70, 78, 84][i], tx: [42, 48, 55, 55, 60, 67][i] }));
 
 function Overview() {
+  const { analyses } = useAnalyses();
+  if (analyses.length) return <LiveAnalysisDashboard title="Visão geral" subtitle="Panorama da auditoria contínua com os principais indicadores e achados em tempo real." />;
   return (
     <>
       <PageHeader title="Visão geral" subtitle="Panorama da auditoria contínua com os principais indicadores e achados em tempo real." />
