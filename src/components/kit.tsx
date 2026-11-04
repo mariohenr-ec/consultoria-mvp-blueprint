@@ -228,7 +228,7 @@ export function PageHeader({
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
-                <Link to="/configuracoes"><User className="h-4 w-4" />Meu perfil</Link>
+                <Link to="/perfil"><User className="h-4 w-4" />Meu perfil</Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link to="/configuracoes"><Settings className="h-4 w-4" />Configurações</Link>

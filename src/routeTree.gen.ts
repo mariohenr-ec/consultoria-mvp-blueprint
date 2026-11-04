@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
 import { Route as ConformidadeRouteImport } from './routes/conformidade'
 import { Route as IntegracoesRouteImport } from './routes/integracoes'
+import { Route as PerfilRouteImport } from './routes/perfil'
 import { Route as PlanosDeAcaoRouteImport } from './routes/planos-de-acao'
 import { Route as RelatoriosRouteImport } from './routes/relatorios'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
@@ -37,6 +38,11 @@ const ConformidadeRoute = ConformidadeRouteImport.update({
 const IntegracoesRoute = IntegracoesRouteImport.update({
   id: '/integracoes',
   path: '/integracoes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PerfilRoute = PerfilRouteImport.update({
+  id: '/perfil',
+  path: '/perfil',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PlanosDeAcaoRoute = PlanosDeAcaoRouteImport.update({
@@ -70,6 +76,7 @@ export interface FileRoutesByFullPath {
   '/configuracoes': typeof ConfiguracoesRoute
   '/conformidade': typeof ConformidadeRoute
   '/integracoes': typeof IntegracoesRoute
+  '/perfil': typeof PerfilRoute
   '/planos-de-acao': typeof PlanosDeAcaoRoute
   '/relatorios': typeof RelatoriosRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -81,6 +88,7 @@ export interface FileRoutesByTo {
   '/configuracoes': typeof ConfiguracoesRoute
   '/conformidade': typeof ConformidadeRoute
   '/integracoes': typeof IntegracoesRoute
+  '/perfil': typeof PerfilRoute
   '/planos-de-acao': typeof PlanosDeAcaoRoute
   '/relatorios': typeof RelatoriosRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -93,6 +101,7 @@ export interface FileRoutesById {
   '/configuracoes': typeof ConfiguracoesRoute
   '/conformidade': typeof ConformidadeRoute
   '/integracoes': typeof IntegracoesRoute
+  '/perfil': typeof PerfilRoute
   '/planos-de-acao': typeof PlanosDeAcaoRoute
   '/relatorios': typeof RelatoriosRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -106,6 +115,7 @@ export interface FileRouteTypes {
     | '/configuracoes'
     | '/conformidade'
     | '/integracoes'
+    | '/perfil'
     | '/planos-de-acao'
     | '/relatorios'
     | '/reset-password'
@@ -117,6 +127,7 @@ export interface FileRouteTypes {
     | '/configuracoes'
     | '/conformidade'
     | '/integracoes'
+    | '/perfil'
     | '/planos-de-acao'
     | '/relatorios'
     | '/reset-password'
@@ -128,6 +139,7 @@ export interface FileRouteTypes {
     | '/configuracoes'
     | '/conformidade'
     | '/integracoes'
+    | '/perfil'
     | '/planos-de-acao'
     | '/relatorios'
     | '/reset-password'
@@ -140,6 +152,7 @@ export interface RootRouteChildren {
   ConfiguracoesRoute: typeof ConfiguracoesRoute
   ConformidadeRoute: typeof ConformidadeRoute
   IntegracoesRoute: typeof IntegracoesRoute
+  PerfilRoute: typeof PerfilRoute
   PlanosDeAcaoRoute: typeof PlanosDeAcaoRoute
   RelatoriosRoute: typeof RelatoriosRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
@@ -175,6 +188,13 @@ declare module '@tanstack/react-router' {
       path: '/integracoes'
       fullPath: '/integracoes'
       preLoaderRoute: typeof IntegracoesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/perfil': {
+      id: '/perfil'
+      path: '/perfil'
+      fullPath: '/perfil'
+      preLoaderRoute: typeof PerfilRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/planos-de-acao': {
@@ -220,6 +240,7 @@ const rootRouteChildren: RootRouteChildren = {
   ConfiguracoesRoute: ConfiguracoesRoute,
   ConformidadeRoute: ConformidadeRoute,
   IntegracoesRoute: IntegracoesRoute,
+  PerfilRoute: PerfilRoute,
   PlanosDeAcaoRoute: PlanosDeAcaoRoute,
   RelatoriosRoute: RelatoriosRoute,
   ResetPasswordRoute: ResetPasswordRoute,
