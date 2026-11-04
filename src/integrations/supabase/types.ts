@@ -62,6 +62,39 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles: {
+        Row: {
+          company: string
+          cpf: string
+          crea: string
+          full_name: string
+          phone: string
+          role_title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          company?: string
+          cpf?: string
+          crea?: string
+          full_name?: string
+          phone?: string
+          role_title?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          company?: string
+          cpf?: string
+          crea?: string
+          full_name?: string
+          phone?: string
+          role_title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
