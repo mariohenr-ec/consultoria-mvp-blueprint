@@ -4,6 +4,7 @@ import { FileText, AlertTriangle, ShieldCheck, ClipboardList, Database, Coins } 
 import { useAnalyses } from "./analysis-provider";
 import { summarize, money, number, percent, type Evaluated } from "@/lib/analysis";
 import { KpiCard, PageHeader, Panel, DonutPanel, HBars, DataTable, RiskBadge, AlertList, type Tone } from "./kit";
+import { LiveRiskDetail } from "./live-risk-detail";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { axis } from "@/lib/data";
@@ -56,7 +57,7 @@ export function LiveAnalysisDashboard({ title, subtitle }: { title: string; subt
         </Panel>
       </div>}
       {isPlans ? <Panel className="mt-3" title="Planos de ação"><p className="py-8 text-sm text-muted-foreground">Nenhum plano de ação foi criado para estas análises.</p></Panel> : isIntegrations || isReports ? <Panel className="mt-3" title={isIntegrations ? "Análises por fonte de dados" : "Análises disponíveis"}><DataTable head={["Nome", "Período", "Área", "Sistema", "Origem", "Transações", "Responsável"]} rows={analyses.map(a => ({ key: a.id, cells: [a.name, `${a.start_date} — ${a.end_date}`, a.area, a.system, a.source, number(a.transactions.length), a.reviewer] }))} /></Panel> : <Panel className="mt-3" title={isRisks ? "Lista de riscos identificados" : isCompliance ? "Principais não conformidades" : "Transações recentes"} action={<Input aria-label="Buscar transações" placeholder="Buscar ID, descrição, fornecedor…" value={query} onChange={e => setQuery(e.target.value)} className="w-72" />}><DataTable onRowClick={key => setSelected(visible.find(r => r.key === key) ?? null)} head={["Data", "ID", "Descrição", "Categoria", "Fornecedor", "Valor (R$)", "Risco", "Controle", "Sistema"]} rows={visible.map(r => ({ key: r.key, cells: [r.date.split("-").reverse().join("/"), r.id, r.description, r.category, r.supplier, money(r.value), <RiskBadge level={r.level} />, r.control, r.system] }))} />{visible.length === 0 && <p className="py-4 text-sm text-muted-foreground">Nenhum registro encontrado.</p>}</Panel>}
-      {selected && <Panel className="mt-3" title={selected.description}><dl className="grid grid-cols-2 gap-2 text-sm"><dt>Análise</dt><dd>{selected.analysis}</dd><dt>Política</dt><dd>{selected.policy || "Não informada"}</dd><dt>Responsável</dt><dd>{selected.reviewer}</dd><dt>Ocorrências</dt><dd>{selected.reasons.join("; ") || "Sem ocorrências nas verificações"}</dd></dl></Panel>}
+      {selected && <LiveRiskDetail row={selected} analysis={analyses.find(a => selected.key.startsWith(a.id))} all={stats.rows} />}
       <div className="mt-3 grid grid-cols-3 gap-3">
         <Panel title="Distribuição por tipo"><DonutPanel center={number(stats.count)} caption="transações" data={types} /></Panel>
         <Panel title="Valor em transações atípicas"><div className="text-2xl font-semibold">{money(stats.atypicalValue)}</div><HBars labelWidth={110} items={grouped(stats.findings, "category").map(([label, value]) => ({ label, value, tone: "critical" }))} /></Panel>

@@ -8,6 +8,13 @@
       "when": 1793543910852,
       "tag": "0000_create_audit_analyses",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1793789740814,
+      "tag": "0001_create_profiles",
+      "breakpoints": true
     }
   ]
 }
