@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 
 const tabs = ["Detalhes", "Contexto", "Evidências", "Transações relacionadas", "Histórico", "Análise de IA"] as const;
 
-export function LiveRiskDetail({ row, analysis, all }: { row: Evaluated; analysis?: Analysis; all: Evaluated[] }) {
+export function LiveRiskDetail({ row, analysis, all }: { row: Evaluated; analysis: Analysis | undefined; all: Evaluated[] }) {
   const [tab, setTab] = useState<(typeof tabs)[number]>("Detalhes");
   const related = all.filter(r => r.key !== row.key && (r.supplier === row.supplier || (r.category === row.category && r.type === row.type))).slice(0, 5);
   const sameType = all.filter(r => r.type === row.type);
