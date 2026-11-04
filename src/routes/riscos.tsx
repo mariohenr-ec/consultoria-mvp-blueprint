@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, XAxis, YAxis } from "recharts";
-import { AlertTriangle, ArrowLeft, CheckCircle2, Circle, CircleDot, Clock, FileText, Plus, User } from "lucide-react";
+import { AlertTriangle, ArrowLeft, CheckCircle2, Circle, CircleDot, Clock, FileText, Plus, Sparkles, Trash2, User } from "lucide-react";
 import { ChartLegend, DataTable, DonutPanel, HBars, KpiCard, MiniSelect, PageHeader, Panel, RiskBadge, StatusBadge, TableToolbar, soon } from "@/components/kit";
 import { axis, findings, topRisks, type Finding } from "@/lib/data";
 import { pageHead } from "@/lib/head";
@@ -89,6 +89,7 @@ const tabs = ["Detalhes", "Contexto", "Evidências (3)", "Transações relaciona
 
 function RiskDetail({ f }: { f: Finding }) {
   const [tab, setTab] = useState<string>(tabs[0]!);
+  const [ai, setAi] = useState(false);
   const [steps, setSteps] = useState([
     { t: "Investigar a transação", who: "Ana Silva", d: "15/06/2024", s: "Em andamento" },
     { t: "Solicitar documentação", who: "Ana Silva", d: "20/06/2024", s: "Pendente" },
