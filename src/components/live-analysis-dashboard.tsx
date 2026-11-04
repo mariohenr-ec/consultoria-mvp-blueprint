@@ -4,6 +4,7 @@ import { FileText, AlertTriangle, ShieldCheck, ClipboardList, Database, Coins } 
 import { useAnalyses } from "./analysis-provider";
 import { summarize, money, number, percent, type Evaluated } from "@/lib/analysis";
 import { KpiCard, PageHeader, Panel, DonutPanel, HBars, DataTable, RiskBadge, AlertList, type Tone } from "./kit";
+import { LiveRiskDetail } from "./live-risk-detail";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { axis } from "@/lib/data";
