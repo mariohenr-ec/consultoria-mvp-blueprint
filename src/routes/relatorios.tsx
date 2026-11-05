@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { AlertTriangle, BarChart3, ClipboardList, FileText, ShieldCheck } from "lucide-react";
 import { ChartLegend, DataTable, DonutPanel, HBars, KpiCard, MiniSelect, PageHeader, Panel, StatusBadge, TableToolbar, DotStatus, type Tone } from "@/components/kit";
 import { axis, months } from "@/lib/data";
+import { inPeriod, maxDate } from "@/lib/analysis";
 import { pageHead } from "@/lib/head";
 import { cn } from "@/lib/utils";
 import { useAnalyses } from "@/components/analysis-provider";
@@ -33,7 +34,7 @@ const models: { title: string; desc: string; icon: React.ElementType; tone: Tone
 const solid: Record<Tone, string> = { info: "bg-info", critical: "bg-critical", low: "bg-low", medium: "bg-medium", violet: "bg-violet", high: "bg-high", neutral: "bg-neutral", soft: "bg-info-soft" };
 
 function Reports() {
-  const { analyses, userId, loading, error } = useAnalyses();
+  const { analyses, userId, loading, error, period } = useAnalyses();
   const [reps, setReps] = useState(initial);
   const [q, setQ] = useState("");
   const [tp, setTp] = useState("Todos os tipos");
@@ -44,11 +45,12 @@ function Reports() {
     setReps((r) => [{ date: `${p(now.getDate())}/${p(now.getMonth() + 1)}/${now.getFullYear()} ${p(now.getHours())}:${p(now.getMinutes())}`, name: `${m.title} – Gerado agora`, type: m.type, period: "Jun/2024", by: "Carlos" }, ...r]);
     toast.success(`${m.title} gerado`, { description: "Disponível na lista de relatórios gerados." });
   };
-  const rows = reps.filter((r) => r.name.toLowerCase().includes(q.toLowerCase()) && (tp === "Todos os tipos" || r.type === tp));
+  const ref = maxDate(reps.map((r) => r.date));
+  const rows = reps.filter((r) => inPeriod(r.date, period, ref) && r.name.toLowerCase().includes(q.toLowerCase()) && (tp === "Todos os tipos" || r.type === tp));
   if (userId && (analyses.length || loading || error)) return <LiveAnalysisDashboard title="Relatórios" subtitle="Resultados consolidados das análises salvas." />;
   return (
     <>
-      <PageHeader title="Relatórios" subtitle="Acompanhamento dos resultados da auditoria contínua com visões gerenciais e operacionais." period="Jan/2024 – Jun/2024" action="Gerar relatório" />
+      <PageHeader title="Relatórios" subtitle="Acompanhamento dos resultados da auditoria contínua com visões gerenciais e operacionais." action="Gerar relatório" />
       <div className="grid grid-cols-4 gap-3">
         <KpiCard plain icon={FileText} tone="neutral" value="2,4 M" label="Transações analisadas" delta="+12%" />
         <KpiCard plain icon={AlertTriangle} tone="critical" value="37" label="Achados de risco" delta="-28%" good={false} />
