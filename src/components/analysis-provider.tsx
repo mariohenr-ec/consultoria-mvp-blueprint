@@ -12,6 +12,7 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
   const [identity, setIdentity] = useState<{ id: string; email: string } | null>(null);
   const [ready, setReady] = useState(false);
   const [open, setOpen] = useState(false);
+  const [period, setPeriod] = useState<PeriodKey>("all");
   const client = useQueryClient();
   const fetchAnalyses = useServerFn(listAnalyses);
   useEffect(() => {
@@ -26,5 +27,5 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
     return () => { active = false; listener.subscription.unsubscribe(); };
   }, [client]);
   const query = useQuery({ queryKey: ["analyses", identity?.id], queryFn: () => fetchAnalyses(), enabled: ready && !!identity });
-  return <Context.Provider value={{ analyses: identity ? query.data ?? [] : [], userId: identity?.id ?? null, email: identity?.email ?? "", loading: !ready || (!!identity && query.isPending), error: query.isError, open, setOpen, refresh: async () => { await client.invalidateQueries({ queryKey: ["analyses"] }); } }}>{children}</Context.Provider>;
+  return <Context.Provider value={{ analyses: identity ? query.data ?? [] : [], userId: identity?.id ?? null, email: identity?.email ?? "", loading: !ready || (!!identity && query.isPending), error: query.isError, open, setOpen, refresh: async () => { await client.invalidateQueries({ queryKey: ["analyses"] }); }, period, setPeriod }}>{children}</Context.Provider>;
 }

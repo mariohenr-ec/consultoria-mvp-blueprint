@@ -31,6 +31,7 @@ import { LogOut, User } from "lucide-react";
 import logo from "@/assets/triantena-logotipo.png.asset.json";
 import { cn } from "@/lib/utils";
 import { useAnalyses } from "./analysis-provider";
+import { periodOptions, type PeriodKey } from "@/lib/analysis";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "./ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
