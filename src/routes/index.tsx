@@ -3,6 +3,7 @@ import { Bar, CartesianGrid, ComposedChart, Area, Line, ResponsiveContainer, XAx
 import { AlertTriangle, ClipboardList, FileText, ShieldCheck, Database, Cloud, FileSpreadsheet } from "lucide-react";
 import { ChartLegend, DataTable, DotStatus, DonutPanel, HBars, KpiCard, LinkButton, PageHeader, Panel, RiskBadge, StatusBadge, soon } from "@/components/kit";
 import { axis, findings, months, topRisks } from "@/lib/data";
+import { inPeriod, maxDate } from "@/lib/analysis";
 import { pageHead } from "@/lib/head";
 import { useAnalyses } from "@/components/analysis-provider";
 import { LiveAnalysisDashboard } from "@/components/live-analysis-dashboard";
@@ -15,7 +16,9 @@ export const Route = createFileRoute("/")({
 const compliance = months.map((m, i) => ({ m, conf: [55, 66, 74, 70, 78, 84][i], tx: [42, 48, 55, 55, 60, 67][i] }));
 
 function Overview() {
-  const { analyses, userId, loading, error } = useAnalyses();
+  const { analyses, userId, loading, error, period } = useAnalyses();
+  const ref = maxDate(findings.map((f) => f.date));
+  const visibleFindings = findings.filter((f) => inPeriod(f.date, period, ref));
   if (userId && (analyses.length || loading || error)) return <LiveAnalysisDashboard title="Visão geral" subtitle="Panorama da auditoria contínua com os principais indicadores e achados em tempo real." />;
   return (
     <>
@@ -61,7 +64,7 @@ function Overview() {
       <Panel className="mt-3" title="Últimos achados de risco" action={<Link to="/riscos"><LinkButton onClick={() => {}}>Ver todos os achados</LinkButton></Link>}>
         <DataTable
           head={["Data", "ID", "Descrição", "Categoria", "Valor (R$)", "Risco", "Status", "Sistema"]}
-          rows={findings.map((f) => ({ key: f.id, cells: [f.date, `#${f.id}`, f.desc, f.category, f.value, <RiskBadge level={f.risk} />, <StatusBadge status={f.status} />, f.system] }))}
+          rows={visibleFindings.map((f) => ({ key: f.id, cells: [f.date, `#${f.id}`, f.desc, f.category, f.value, <RiskBadge level={f.risk} />, <StatusBadge status={f.status} />, f.system] }))}
         />
       </Panel>
 
