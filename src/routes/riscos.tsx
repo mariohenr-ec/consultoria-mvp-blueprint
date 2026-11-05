@@ -4,6 +4,7 @@ import { Bar, BarChart, CartesianGrid, ResponsiveContainer, XAxis, YAxis } from 
 import { AlertTriangle, ArrowLeft, CheckCircle2, Circle, CircleDot, Clock, FileText, Plus, Sparkles, Trash2, User } from "lucide-react";
 import { ChartLegend, DataTable, DonutPanel, HBars, KpiCard, MiniSelect, PageHeader, Panel, RiskBadge, StatusBadge, TableToolbar, soon } from "@/components/kit";
 import { axis, findings, topRisks, type Finding } from "@/lib/data";
+import { inPeriod, maxDate } from "@/lib/analysis";
 import { pageHead } from "@/lib/head";
 import { cn } from "@/lib/utils";
 import { useAnalyses } from "@/components/analysis-provider";
@@ -24,13 +25,15 @@ const weeks = Array.from({ length: 14 }, (_, i) => ({
 const wkLabel: Record<number, string> = { 0: "01 Jun", 3: "08 Jun", 6: "15 Jun", 9: "22 Jun", 12: "29 Jun" };
 
 function Risks() {
-  const { analyses, userId, loading, error } = useAnalyses();
+  const { analyses, userId, loading, error, period } = useAnalyses();
   const [q, setQ] = useState("");
   const [st, setSt] = useState("Todos os status");
   const [cat, setCat] = useState("Todas as categorias");
   const [sel, setSel] = useState<string>("45872");
-  const rows = findings.filter((f) => (f.id + f.desc + f.supplier).toLowerCase().includes(q.toLowerCase()) && (st === "Todos os status" || f.status === st) && (cat === "Todas as categorias" || f.category === cat));
-  const current = findings.find((f) => f.id === sel);
+  const ref = maxDate(findings.map((f) => f.date));
+  const periodRows = findings.filter((f) => inPeriod(f.date, period, ref));
+  const rows = periodRows.filter((f) => (f.id + f.desc + f.supplier).toLowerCase().includes(q.toLowerCase()) && (st === "Todos os status" || f.status === st) && (cat === "Todas as categorias" || f.category === cat));
+  const current = periodRows.find((f) => f.id === sel);
   if (userId && (analyses.length || loading || error)) return <LiveAnalysisDashboard title="Riscos" subtitle="Identificação, análise e monitoramento de riscos nas análises salvas." />;
   return (
     <>
