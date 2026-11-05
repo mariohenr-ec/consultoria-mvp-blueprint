@@ -4,6 +4,7 @@ import { Bar, BarChart, CartesianGrid, ResponsiveContainer, XAxis, YAxis } from 
 import { CheckCircle2, CircleX, ClipboardList, Clock, Check } from "lucide-react";
 import { AlertList, ChartLegend, DataTable, DonutPanel, HBars, KpiCard, MiniSelect, PageHeader, Panel, StatusBadge, TableToolbar, soon } from "@/components/kit";
 import { actionPlans, axis, months } from "@/lib/data";
+import { inPeriod, maxDate } from "@/lib/analysis";
 import { pageHead } from "@/lib/head";
 import { cn } from "@/lib/utils";
 import { useAnalyses } from "@/components/analysis-provider";
@@ -17,11 +18,12 @@ export const Route = createFileRoute("/planos-de-acao")({
 const evo = months.map((m, i) => ({ m, c: [4, 6, 7, 8, 9, 10][i], e: [5, 6, 8, 10, 13, 14][i], p: [6, 8, 11, 12, 14, 17][i], a: [1, 1, 2, 2, 2, 3][i] }));
 
 function Plans() {
-  const { analyses, userId, loading, error } = useAnalyses();
+  const { analyses, userId, loading, error, period } = useAnalyses();
   const [q, setQ] = useState("");
   const [st, setSt] = useState("Todos os status");
   const [ar, setAr] = useState("Todas as áreas");
-  const rows = actionPlans.filter((p) => (p.id + p.desc + p.finding).toLowerCase().includes(q.toLowerCase()) && (st === "Todos os status" || p.status === st) && (ar === "Todas as áreas" || p.area === ar));
+  const ref = maxDate(actionPlans.map((p) => p.due));
+  const rows = actionPlans.filter((p) => inPeriod(p.due, period, ref) && (p.id + p.desc + p.finding).toLowerCase().includes(q.toLowerCase()) && (st === "Todos os status" || p.status === st) && (ar === "Todas as áreas" || p.area === ar));
   if (userId && (analyses.length || loading || error)) return <LiveAnalysisDashboard title="Planos de ação" subtitle="Acompanhe as ações corretivas das análises salvas." />;
   return (
     <>

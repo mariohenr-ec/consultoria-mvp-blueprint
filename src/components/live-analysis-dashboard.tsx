@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, XAxis, YAxis } from "recharts";
 import { FileText, AlertTriangle, ShieldCheck, ClipboardList, Database, Coins } from "lucide-react";
 import { useAnalyses } from "./analysis-provider";
-import { summarize, money, number, percent, type Evaluated } from "@/lib/analysis";
+import { summarize, money, number, percent, periodLabel, periodStart, type Evaluated } from "@/lib/analysis";
 import { KpiCard, PageHeader, Panel, DonutPanel, HBars, DataTable, RiskBadge, AlertList, type Tone } from "./kit";
 import { LiveRiskDetail } from "./live-risk-detail";
 import { Input } from "./ui/input";
@@ -10,10 +10,16 @@ import { Button } from "./ui/button";
 import { axis } from "@/lib/data";
 
 export function LiveAnalysisDashboard({ title, subtitle }: { title: string; subtitle: string }) {
-  const { analyses, loading, error, refresh } = useAnalyses();
+  const { analyses, loading, error, refresh, period } = useAnalyses();
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<Evaluated | null>(null);
-  const stats = summarize(analyses);
+  const today = new Date().toISOString().slice(0, 10);
+  const start = periodStart(period, today);
+  const filtered = analyses
+    .filter(a => !start || (a.end_date >= start && a.start_date <= today))
+    .map(a => start ? { ...a, transactions: a.transactions.filter(t => t.date >= start && t.date <= today) } : a)
+    .filter(a => a.transactions.length > 0);
+  const stats = summarize(filtered);
   const isCompliance = title === "Conformidade";
   const isRisks = title === "Riscos";
   const isPlans = title === "Planos de ação";
@@ -38,12 +44,12 @@ export function LiveAnalysisDashboard({ title, subtitle }: { title: string; subt
   return <>
     <PageHeader title={title} subtitle={subtitle} action="Nova análise" />
     {loading ? <p role="status">Carregando análises…</p> : error ? <div role="alert" className="flex items-center gap-3"><p>Não foi possível carregar suas análises.</p><Button onClick={() => refresh()}>Tentar novamente</Button></div> : <>
-      <div className="mb-3 flex flex-wrap items-center justify-between gap-2 border-b pb-3 text-sm text-muted-foreground"><span>{number(analyses.length)} análises salvas · Todos os períodos</span><span>{analyses.at(-1)?.start_date} — {analyses[0]?.end_date}</span></div>
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2 border-b pb-3 text-sm text-muted-foreground"><span>{number(filtered.length)} análises salvas · {periodLabel(period)}</span><span>{filtered.at(-1)?.start_date} — {filtered[0]?.end_date}</span></div>
       <div className="grid grid-cols-2 gap-3 2xl:grid-cols-4">
         <KpiCard icon={FileText} tone="info" value={number(stats.count)} label="Transações analisadas" />
         <KpiCard icon={AlertTriangle} tone="critical" value={number(stats.findings.length)} label="Achados de risco" />
         <KpiCard icon={ShieldCheck} tone="low" value={stats.compliance === null ? "—" : percent(stats.compliance)} label="Conformidade dos controles" />
-        <KpiCard icon={isIntegrations ? Database : isPlans ? ClipboardList : Coins} tone="medium" value={isPlans ? "0" : isIntegrations ? number(analyses.filter(a => a.source === "Planilha").length) : money(stats.total)} label={isPlans ? "Planos de ação criados" : isIntegrations ? "Importações de planilhas" : "Valor total analisado"} />
+        <KpiCard icon={isIntegrations ? Database : isPlans ? ClipboardList : Coins} tone="medium" value={isPlans ? "0" : isIntegrations ? number(filtered.filter(a => a.source === "Planilha").length) : money(stats.total)} label={isPlans ? "Planos de ação criados" : isIntegrations ? "Importações de planilhas" : "Valor total analisado"} />
       </div>
       {!isPlans && <div className="mt-3 grid grid-cols-3 gap-3">
         <Panel title={isCompliance ? "Status dos controles" : "Distribuição dos achados"}><DonutPanel center={number(isCompliance ? stats.count : stats.findings.length)} caption={isCompliance ? "controles" : "achados"} data={isCompliance ? controls : riskSlices} /></Panel>
@@ -56,8 +62,8 @@ export function LiveAnalysisDashboard({ title, subtitle }: { title: string; subt
           })} />
         </Panel>
       </div>}
-      {isPlans ? <Panel className="mt-3" title="Planos de ação"><p className="py-8 text-sm text-muted-foreground">Nenhum plano de ação foi criado para estas análises.</p></Panel> : isIntegrations || isReports ? <Panel className="mt-3" title={isIntegrations ? "Análises por fonte de dados" : "Análises disponíveis"}><DataTable head={["Nome", "Período", "Área", "Sistema", "Origem", "Transações", "Responsável"]} rows={analyses.map(a => ({ key: a.id, cells: [a.name, `${a.start_date} — ${a.end_date}`, a.area, a.system, a.source, number(a.transactions.length), a.reviewer] }))} /></Panel> : <Panel className="mt-3" title={isRisks ? "Lista de riscos identificados" : isCompliance ? "Principais não conformidades" : "Transações recentes"} action={<Input aria-label="Buscar transações" placeholder="Buscar ID, descrição, fornecedor…" value={query} onChange={e => setQuery(e.target.value)} className="w-72" />}><DataTable onRowClick={key => setSelected(visible.find(r => r.key === key) ?? null)} head={["Data", "ID", "Descrição", "Categoria", "Fornecedor", "Valor (R$)", "Risco", "Controle", "Sistema"]} rows={visible.map(r => ({ key: r.key, cells: [r.date.split("-").reverse().join("/"), r.id, r.description, r.category, r.supplier, money(r.value), <RiskBadge level={r.level} />, r.control, r.system] }))} />{visible.length === 0 && <p className="py-4 text-sm text-muted-foreground">Nenhum registro encontrado.</p>}</Panel>}
-      {selected && <LiveRiskDetail row={selected} analysis={analyses.find(a => selected.key.startsWith(a.id))} all={stats.rows} />}
+      {isPlans ? <Panel className="mt-3" title="Planos de ação"><p className="py-8 text-sm text-muted-foreground">Nenhum plano de ação foi criado para estas análises.</p></Panel> : isIntegrations || isReports ? <Panel className="mt-3" title={isIntegrations ? "Análises por fonte de dados" : "Análises disponíveis"}><DataTable head={["Nome", "Período", "Área", "Sistema", "Origem", "Transações", "Responsável"]} rows={filtered.map(a => ({ key: a.id, cells: [a.name, `${a.start_date} — ${a.end_date}`, a.area, a.system, a.source, number(a.transactions.length), a.reviewer] }))} /></Panel> : <Panel className="mt-3" title={isRisks ? "Lista de riscos identificados" : isCompliance ? "Principais não conformidades" : "Transações recentes"} action={<Input aria-label="Buscar transações" placeholder="Buscar ID, descrição, fornecedor…" value={query} onChange={e => setQuery(e.target.value)} className="w-72" />}><DataTable onRowClick={key => setSelected(visible.find(r => r.key === key) ?? null)} head={["Data", "ID", "Descrição", "Categoria", "Fornecedor", "Valor (R$)", "Risco", "Controle", "Sistema"]} rows={visible.map(r => ({ key: r.key, cells: [r.date.split("-").reverse().join("/"), r.id, r.description, r.category, r.supplier, money(r.value), <RiskBadge level={r.level} />, r.control, r.system] }))} />{visible.length === 0 && <p className="py-4 text-sm text-muted-foreground">Nenhum registro encontrado.</p>}</Panel>}
+      {selected && <LiveRiskDetail row={selected} analysis={filtered.find(a => selected.key.startsWith(a.id))} all={stats.rows} />}
       <div className="mt-3 grid grid-cols-3 gap-3">
         <Panel title="Distribuição por tipo"><DonutPanel center={number(stats.count)} caption="transações" data={types} /></Panel>
         <Panel title="Valor em transações atípicas"><div className="text-2xl font-semibold">{money(stats.atypicalValue)}</div><HBars labelWidth={110} items={grouped(stats.findings, "category").map(([label, value]) => ({ label, value, tone: "critical" }))} /></Panel>

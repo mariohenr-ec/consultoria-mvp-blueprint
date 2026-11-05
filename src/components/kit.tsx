@@ -31,6 +31,7 @@ import { LogOut, User } from "lucide-react";
 import logo from "@/assets/triantena-logotipo.png.asset.json";
 import { cn } from "@/lib/utils";
 import { useAnalyses } from "./analysis-provider";
+import { periodOptions, type PeriodKey } from "@/lib/analysis";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "./ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -194,12 +195,10 @@ export function AppShell({ children }: { children: ReactNode }) {
 export function PageHeader({
   title,
   subtitle,
-  period = "Últimos 30 dias",
   action,
 }: {
   title: string;
   subtitle: string;
-  period?: string;
   action?: string;
 }) {
   const { setOpen, userId, email } = useAnalyses();
@@ -244,7 +243,7 @@ export function PageHeader({
           </DropdownMenu>
         </div>
         <div className="flex items-center gap-2">
-          <PeriodSelect value={period} />
+          <PeriodSelect />
           {action && (
             <Button
               onClick={() => action === "Nova análise" ? setOpen(true) : soon(action)}
@@ -259,15 +258,14 @@ export function PageHeader({
   );
 }
 
-function PeriodSelect({ value }: { value: string }) {
-  const [v, setV] = useState(value);
-  const opts = Array.from(new Set([value, "Últimos 7 dias", "Últimos 30 dias", "Últimos 90 dias", "Jan/2024 – Jun/2024"]));
+function PeriodSelect() {
+  const { period, setPeriod } = useAnalyses();
   return (
     <label className="relative flex h-9 items-center gap-2 rounded-md border bg-card pl-3 pr-8 text-[13px] shadow-card">
       <Calendar className="h-4 w-4" strokeWidth={1.75} />
-      <select value={v} onChange={(e) => setV(e.target.value)} className="appearance-none bg-transparent outline-none">
-        {opts.map((o) => (
-          <option key={o}>{o}</option>
+      <select aria-label="Filtrar por período" value={period} onChange={(e) => setPeriod(e.target.value as PeriodKey)} className="appearance-none bg-transparent outline-none">
+        {periodOptions.map((o) => (
+          <option key={o.key} value={o.key}>{o.label}</option>
         ))}
       </select>
       <ChevronDown className="pointer-events-none absolute right-2.5 h-4 w-4" />

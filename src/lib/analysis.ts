@@ -51,6 +51,31 @@ export function summarize(analyses: Analysis[]) {
   const applicable = rows.filter(r => r.control === "Conforme" || r.control === "Não conforme");
   return { rows, findings, count: rows.length, total: rows.reduce((n, r) => n + r.value, 0), atypicalValue: findings.reduce((n, r) => n + r.value, 0), compliance: applicable.length ? applicable.filter(r => r.control === "Conforme").length / applicable.length * 100 : null };
 }
+export type PeriodKey = "7d" | "30d" | "90d" | "all";
+export const periodOptions: { key: PeriodKey; label: string }[] = [
+  { key: "7d", label: "Últimos 7 dias" },
+  { key: "30d", label: "Últimos 30 dias" },
+  { key: "90d", label: "Últimos 90 dias" },
+  { key: "all", label: "Todos os períodos" },
+];
+export const periodLabel = (key: PeriodKey) => periodOptions.find(o => o.key === key)?.label ?? key;
+const periodDays: Record<PeriodKey, number | null> = { "7d": 7, "30d": 30, "90d": 90, all: null };
+export const toISODate = (s: string) => { const d = s.slice(0, 10); return /^\d{4}-\d{2}-\d{2}$/.test(d) ? d : d.replace(/^(\d{2})\/(\d{2})\/(\d{4})$/, "$3-$2-$1"); };
+export function periodStart(period: PeriodKey, ref: string): string | null {
+  const days = periodDays[period];
+  if (days === null) return null;
+  const d = new Date(`${toISODate(ref)}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() - (days - 1));
+  return d.toISOString().slice(0, 10);
+}
+export function inPeriod(date: string, period: PeriodKey, ref: string): boolean {
+  const start = periodStart(period, ref);
+  if (!start) return true;
+  const iso = toISODate(date);
+  return iso >= start && iso <= toISODate(ref);
+}
+export const maxDate = (dates: string[]) => dates.map(toISODate).sort().at(-1) ?? new Date().toISOString().slice(0, 10);
+
 export const number = (n: number) => n.toLocaleString("pt-BR");
 export const money = (n: number) => n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 export const percent = (n: number) => `${n.toLocaleString("pt-BR", { maximumFractionDigits: 1 })}%`;
