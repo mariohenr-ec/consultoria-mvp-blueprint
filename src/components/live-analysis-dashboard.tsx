@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, XAxis, YAxis } from "recharts";
 import { FileText, AlertTriangle, ShieldCheck, ClipboardList, Database, Coins } from "lucide-react";
 import { useAnalyses } from "./analysis-provider";
-import { summarize, money, number, percent, type Evaluated } from "@/lib/analysis";
+import { summarize, money, number, percent, periodLabel, periodStart, type Evaluated } from "@/lib/analysis";
 import { KpiCard, PageHeader, Panel, DonutPanel, HBars, DataTable, RiskBadge, AlertList, type Tone } from "./kit";
 import { LiveRiskDetail } from "./live-risk-detail";
 import { Input } from "./ui/input";
@@ -10,10 +10,16 @@ import { Button } from "./ui/button";
 import { axis } from "@/lib/data";
 
 export function LiveAnalysisDashboard({ title, subtitle }: { title: string; subtitle: string }) {
-  const { analyses, loading, error, refresh } = useAnalyses();
+  const { analyses, loading, error, refresh, period } = useAnalyses();
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<Evaluated | null>(null);
-  const stats = summarize(analyses);
+  const today = new Date().toISOString().slice(0, 10);
+  const start = periodStart(period, today);
+  const filtered = analyses
+    .filter(a => !start || (a.end_date >= start && a.start_date <= today))
+    .map(a => start ? { ...a, transactions: a.transactions.filter(t => t.date >= start && t.date <= today) } : a)
+    .filter(a => a.transactions.length > 0);
+  const stats = summarize(filtered);
   const isCompliance = title === "Conformidade";
   const isRisks = title === "Riscos";
   const isPlans = title === "Planos de ação";
