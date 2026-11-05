@@ -3,10 +3,10 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { listAnalyses } from "@/lib/analysis.functions";
-import type { Analysis } from "@/lib/analysis";
+import type { Analysis, PeriodKey } from "@/lib/analysis";
 
-type State = { analyses: Analysis[]; userId: string | null; email: string; loading: boolean; error: boolean; open: boolean; setOpen: (open: boolean) => void; refresh: () => Promise<void> };
-const Context = createContext<State>({ analyses: [], userId: null, email: "", loading: true, error: false, open: false, setOpen: () => {}, refresh: async () => {} });
+type State = { analyses: Analysis[]; userId: string | null; email: string; loading: boolean; error: boolean; open: boolean; setOpen: (open: boolean) => void; refresh: () => Promise<void>; period: PeriodKey; setPeriod: (period: PeriodKey) => void };
+const Context = createContext<State>({ analyses: [], userId: null, email: "", loading: true, error: false, open: false, setOpen: () => {}, refresh: async () => {}, period: "all", setPeriod: () => {} });
 export const useAnalyses = () => useContext(Context);
 export function AnalysisProvider({ children }: { children: ReactNode }) {
   const [identity, setIdentity] = useState<{ id: string; email: string } | null>(null);
