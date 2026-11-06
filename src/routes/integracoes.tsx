@@ -6,7 +6,7 @@ import { AlertList, ChartLegend, DataTable, DonutPanel, DotStatus, KpiCard, Mini
 import { axis } from "@/lib/data";
 import { pageHead } from "@/lib/head";
 import { useAnalyses } from "@/components/analysis-provider";
-import { LiveAnalysisDashboard } from "@/components/live-analysis-dashboard";
+import { IntegrationConfigsPage } from "@/components/integration-configs-page";
 
 export const Route = createFileRoute("/integracoes")({
   head: pageHead("Integrações", "Conecte suas fontes de dados e mantenha as informações sempre atualizadas para análise contínua."),
@@ -30,16 +30,18 @@ const integrations: { n: string; type: string; icon: string; sys: string; st: st
 const vol = ["20 Jun", "21 Jun", "22 Jun", "23 Jun", "24 Jun", "25 Jun", "26 Jun"].map((d, i) => ({ d, t: [10, 11, 11, 10, 12, 15, 17][i], c: [7, 9, 8, 7, 8, 11, 10][i], p: [1, 1, 1, 1, 1, 1, 1][i], o: [12, 11, 12, 12, 13, 12, 14][i] }));
 
 function Integrations() {
-  const { analyses, userId, loading, error } = useAnalyses();
+  return <IntegrationConfigsPage demo={onNew => <DemoIntegrations onNew={onNew} />} />;
+}
+
+function DemoIntegrations({ onNew }: { onNew: () => void }) {
   const [q, setQ] = useState("");
   const [st, setSt] = useState("Todos os status");
   const [tp, setTp] = useState("Todos os tipos");
   const [alerts, setAlerts] = useState(true);
   const rows = integrations.filter((i) => (i.n + i.sys).toLowerCase().includes(q.toLowerCase()) && (st === "Todos os status" || i.st === st) && (tp === "Todos os tipos" || i.type === tp));
-  if (userId && (analyses.length || loading || error)) return <LiveAnalysisDashboard title="Integrações" subtitle="Fontes de dados e importações das análises salvas." />;
   return (
     <>
-      <PageHeader title="Integrações" subtitle="Conecte suas fontes de dados e mantenha as informações sempre atualizadas para análise contínua." action="Nova integração" />
+      <PageHeader title="Integrações" subtitle="Conecte suas fontes de dados e mantenha as informações sempre atualizadas para análise contínua." action="Nova integração" onAction={onNew} />
       <div className="grid grid-cols-4 gap-3">
         <KpiCard icon={Server} tone="info" value="5" label="Integrações ativas" delta="+25%" />
         <KpiCard icon={RefreshCw} tone="low" value="98%" label="Taxa de sincronização" delta="+6%" />
@@ -83,7 +85,7 @@ function Integrations() {
       </div>
       <Panel className="mt-3" title="Integrações configuradas" action={<TableToolbar placeholder="Buscar integração..." query={q} setQuery={setQ}
         filters={[{ value: st, onChange: setSt, options: ["Todos os status", "Conectado", "Com alerta", "Em sincronização", "Inativa"] }, { value: tp, onChange: setTp, options: ["Todos os tipos", "ERP", "Banco de dados", "Planilhas", "API", "Outros"] }]}
-        extra={<button onClick={() => soon("Nova integração")} className="flex h-9 items-center gap-2 rounded-md bg-primary px-4 text-[13px] font-medium text-primary-foreground"><Plus className="h-4 w-4" /> Nova integração</button>} />}>
+        />}>
         <DataTable head={["Nome", "Tipo", "Sistema", "Status", "Última sincronização", "Frequência", "Registros (últ. 30 dias)"]}
           rows={rows.map((i) => ({ key: i.n, cells: [<span className="flex items-center gap-3"><span className="grid w-6 place-items-center">{icons[i.icon]}</span>{i.n}</span>, i.type, i.sys,
             i.tone === "low" ? <DotStatus label={i.st} tone="low" /> : <DotStatus label={i.st} tone={i.tone} square chip />, i.last, <span className="text-info/90">{i.freq}</span>, i.reg] }))} />
