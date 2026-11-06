@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      action_plans: {
+        Row: {
+          area: string
+          created_at: string
+          description: string
+          due: string
+          finding: string
+          id: string
+          owner: string
+          progress: number
+          status: string
+          user_id: string
+        }
+        Insert: {
+          area: string
+          created_at?: string
+          description: string
+          due: string
+          finding?: string
+          id?: string
+          owner: string
+          progress?: number
+          status?: string
+          user_id?: string
+        }
+        Update: {
+          area?: string
+          created_at?: string
+          description?: string
+          due?: string
+          finding?: string
+          id?: string
+          owner?: string
+          progress?: number
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       audit_analyses: {
         Row: {
           area: string
