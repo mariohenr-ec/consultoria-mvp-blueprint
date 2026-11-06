@@ -196,10 +196,12 @@ export function PageHeader({
   title,
   subtitle,
   action,
+  onAction,
 }: {
   title: string;
   subtitle: string;
   action?: string;
+  onAction?: () => void;
 }) {
   const { setOpen, userId, email } = useAnalyses();
   return (
@@ -246,7 +248,7 @@ export function PageHeader({
           <PeriodSelect />
           {action && (
             <Button
-              onClick={() => action === "Nova análise" ? setOpen(true) : soon(action)}
+              onClick={() => onAction ? onAction() : action === "Nova análise" ? setOpen(true) : soon(action)}
               className="flex h-9 items-center gap-2 rounded-md bg-primary px-4 text-[13px] font-medium text-primary-foreground hover:bg-primary/90"
             >
               <Plus className="h-4 w-4" /> {action}
