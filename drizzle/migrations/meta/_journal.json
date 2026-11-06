@@ -22,6 +22,13 @@
       "when": 1793963012856,
       "tag": "0002_create_action_plans",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1793963607955,
+      "tag": "0003_create_integration_configs",
+      "breakpoints": true
     }
   ]
 }

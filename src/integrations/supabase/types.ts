@@ -101,6 +101,51 @@ export type Database = {
         }
         Relationships: []
       }
+      integration_configs: {
+        Row: {
+          auth_method: string
+          created_at: string
+          data_scope: string
+          frequency: string
+          id: string
+          name: string
+          notes: string
+          owner: string
+          source_reference: string
+          system: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          auth_method: string
+          created_at?: string
+          data_scope: string
+          frequency: string
+          id?: string
+          name: string
+          notes?: string
+          owner: string
+          source_reference?: string
+          system: string
+          type: string
+          user_id?: string
+        }
+        Update: {
+          auth_method?: string
+          created_at?: string
+          data_scope?: string
+          frequency?: string
+          id?: string
+          name?: string
+          notes?: string
+          owner?: string
+          source_reference?: string
+          system?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           company: string

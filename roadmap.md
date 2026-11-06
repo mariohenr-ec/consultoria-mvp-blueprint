@@ -8,3 +8,8 @@
 - [x] Abrir formulário no botão Novo plano de ação e salvar por usuário.
 - [x] Mostrar planos salvos na lista com filtros e indicadores próprios.
 - [x] Verificar criação e permanência após recarregar.
+
+# Cadastro de integrações
+- [ ] Manter somente o botão superior e abrir o cadastro.
+- [ ] Salvar configurações por usuário e exibir na lista sem simular conexão.
+- [ ] Testar inclusão e permanência após recarregar.
