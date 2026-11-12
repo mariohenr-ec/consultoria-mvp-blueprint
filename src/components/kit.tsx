@@ -201,7 +201,7 @@ export function PageHeader({
   title: string;
   subtitle: string;
   action?: string;
-  onAction?: () => void;
+  onAction?: (() => void) | undefined;
 }) {
   const { setOpen, userId, email } = useAnalyses();
   return (

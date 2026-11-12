@@ -50,7 +50,7 @@ function Reports() {
   if (userId && (analyses.length || loading || error)) return <LiveAnalysisDashboard title="Relatórios" subtitle="Resultados consolidados das análises salvas." />;
   return (
     <>
-      <PageHeader title="Relatórios" subtitle="Acompanhamento dos resultados da auditoria contínua com visões gerenciais e operacionais." action="Gerar relatório" />
+      <PageHeader title="Relatórios" subtitle="Acompanhamento dos resultados da auditoria contínua com visões gerenciais e operacionais." action="Novo Relatório" />
       <div className="grid grid-cols-4 gap-3">
         <KpiCard plain icon={FileText} tone="neutral" value="2,4 M" label="Transações analisadas" delta="+12%" />
         <KpiCard plain icon={AlertTriangle} tone="critical" value="37" label="Achados de risco" delta="-28%" good={false} />

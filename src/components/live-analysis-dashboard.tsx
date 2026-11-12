@@ -5,6 +5,7 @@ import { useAnalyses } from "./analysis-provider";
 import { summarize, money, number, percent, periodLabel, periodStart, type Evaluated } from "@/lib/analysis";
 import { KpiCard, PageHeader, Panel, DonutPanel, HBars, DataTable, RiskBadge, AlertList, type Tone } from "./kit";
 import { LiveRiskDetail } from "./live-risk-detail";
+import { NewReportDialog } from "./new-report-dialog";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { axis } from "@/lib/data";
@@ -13,6 +14,7 @@ export function LiveAnalysisDashboard({ title, subtitle }: { title: string; subt
   const { analyses, loading, error, refresh, period } = useAnalyses();
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<Evaluated | null>(null);
+  const [reportOpen, setReportOpen] = useState(false);
   const today = new Date().toISOString().slice(0, 10);
   const start = periodStart(period, today);
   const filtered = analyses
@@ -42,7 +44,8 @@ export function LiveAnalysisDashboard({ title, subtitle }: { title: string; subt
   }, {})).sort(([a], [b]) => a.localeCompare(b)).map(([date, v]) => ({ date: date.split("-").reverse().join("/"), ...v }));
   const visible = (isRisks ? stats.findings : isCompliance ? stats.rows.filter(r => r.control !== "Conforme") : stats.rows).filter(r => `${r.id} ${r.description} ${r.supplier} ${r.area}`.toLowerCase().includes(query.toLowerCase()));
   return <>
-    <PageHeader title={title} subtitle={subtitle} action="Nova análise" />
+    <PageHeader title={title} subtitle={subtitle} action={isReports ? "Novo Relatório" : "Nova análise"} onAction={isReports ? () => setReportOpen(true) : undefined} />
+    {isReports && <NewReportDialog open={reportOpen} onOpenChange={setReportOpen} stats={stats} periodText={periodLabel(period)} analysesCount={filtered.length} />}
     {loading ? <p role="status">Carregando análises…</p> : error ? <div role="alert" className="flex items-center gap-3"><p>Não foi possível carregar suas análises.</p><Button onClick={() => refresh()}>Tentar novamente</Button></div> : <>
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2 border-b pb-3 text-sm text-muted-foreground"><span>{number(filtered.length)} análises salvas · {periodLabel(period)}</span><span>{filtered.at(-1)?.start_date} — {filtered[0]?.end_date}</span></div>
       <div className="grid grid-cols-2 gap-3 2xl:grid-cols-4">
