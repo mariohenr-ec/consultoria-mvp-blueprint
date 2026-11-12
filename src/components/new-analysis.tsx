@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useAnalyses } from "./analysis-provider";
 import { AnalysisAuth } from "./analysis-auth";
-import { analysisSchema, evaluate, parseImport, money, type AnalysisInput, type TransactionInput } from "@/lib/analysis";
+import { analysisSchema, evaluate, isPayroll, parseImport, money, type AnalysisInput, type TransactionInput } from "@/lib/analysis";
 import { createAnalysis } from "@/lib/analysis.functions";
 
 const today = () => new Date().toISOString().slice(0, 10);
@@ -49,7 +49,7 @@ function AnalysisForm() {
     finally { setBusy(false); }
   }
   function template() {
-    const csv = "\uFEFFid;data;descricao;fornecedor;valor;tipo;categoria;cadastrado;aprovado;controle;risco\nTX-001;" + today() + ";Pagamento de serviços;Fornecedor exemplo;1500,00;Pagamento;Compras;Sim;Sim;Conforme;\n";
+    const csv = "\uFEFFid;data;descricao;fornecedor;valor;tipo;categoria;cadastrado;aprovado;controle;risco;valor_nf;estoque_contabil;estoque_fisico;funcionario_cadastrado;valor_original\nTX-001;" + today() + ";Pagamento de serviços;Fornecedor exemplo;1500,00;Pagamento;Compras;Sim;Sim;Conforme;;1500,00;;;;\n";
     const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
     const a = document.createElement("a"); a.href = url; a.download = "modelo-transacoes.csv"; a.click(); URL.revokeObjectURL(url);
   }
@@ -91,6 +91,8 @@ function AnalysisForm() {
           <SelectField label="Resultado do controle" value={r.control} options={["Conforme", "Não conforme", "Em análise", "Não aplicável"]} onChange={v => update(i, "control", v)} />
           <SelectField label="Classificação de risco" value={r.risk ?? "Automática"} options={["Automática", "Crítico", "Alto", "Médio", "Baixo"]} onChange={v => update(i, "risk", v === "Automática" ? undefined : v)} />
           <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={r.registered} onChange={e => update(i, "registered", e.target.checked)} />Fornecedor cadastrado?</label>
+          {([["invoice_value", "Valor da nota fiscal (R$)"], ["original_value", "Valor original antes de alteração (R$)"], ["book_qty", "Estoque contábil (qtd.)"], ["physical_qty", "Estoque físico (qtd.)"]] as const).map(([field, label]) => <label key={field} className="text-sm">{label}<Input type="number" step="0.01" placeholder="Opcional" value={r[field] ?? ""} onChange={e => update(i, field, e.target.value === "" ? undefined : Number(e.target.value))} /></label>)}
+          {isPayroll(r) && <SelectField label="Funcionário consta no cadastro de RH?" value={r.employee_registered === undefined ? "Não informado" : r.employee_registered ? "Sim" : "Não"} options={["Não informado", "Sim", "Não"]} onChange={v => update(i, "employee_registered", v === "Não informado" ? undefined : v === "Sim")} />}
           <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={r.approved} onChange={e => update(i, "approved", e.target.checked)} />Aprovação registrada?</label>
         </div>
       </fieldset>)}
