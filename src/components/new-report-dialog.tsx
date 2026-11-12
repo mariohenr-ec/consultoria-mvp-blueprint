@@ -26,7 +26,7 @@ export function NewReportDialog({ open, onOpenChange, stats, periodText, analyse
   const [busy, setBusy] = useState(false);
 
   const exportDocx = async () => {
-    if (!title.trim()) return toast.error("Informe o título do relatório");
+    if (!title.trim()) { toast.error("Informe o título do relatório"); return; }
     setBusy(true);
     try {
       const d = await import("docx");
