@@ -34,7 +34,7 @@ export function NewReportDialog({ open, onOpenChange, stats, periodText, analyse
       const border = { style: BorderStyle.SINGLE, size: 1, color: "CCCCCC" };
       const borders = { top: border, bottom: border, left: border, right: border };
       const widths = [1800, 3160, 1600, 1400, 1400];
-      const cell = (t: string, i: number, head = false) => new TableCell({ borders, width: { size: widths[i]!, type: WidthType.DXA }, margins: { top: 60, bottom: 60, left: 100, right: 100 }, shading: head ? { fill: "DCE6F2", type: ShadingType.CLEAR } : undefined, children: [new Paragraph({ children: [new TextRun({ text: t, bold: head, size: 18 })] })] });
+      const cell = (t: string, i: number, head = false) => new TableCell({ borders, width: { size: widths[i]!, type: WidthType.DXA }, margins: { top: 60, bottom: 60, left: 100, right: 100 }, shading: { fill: head ? "DCE6F2" : "FFFFFF", type: ShadingType.CLEAR }, children: [new Paragraph({ children: [new TextRun({ text: t, bold: head, size: 18 })] })] });
       const list = type === "Conformidade" ? stats.rows.filter(r => r.control !== "Conforme") : stats.findings;
       const rows = list.slice(0, 50);
       const p = (t: string, bold = false) => new Paragraph({ spacing: { after: 120 }, children: [new TextRun({ text: t, bold })] });
