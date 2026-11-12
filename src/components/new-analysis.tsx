@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useAnalyses } from "./analysis-provider";
 import { AnalysisAuth } from "./analysis-auth";
-import { analysisSchema, evaluate, parseImport, money, type AnalysisInput, type TransactionInput } from "@/lib/analysis";
+import { analysisSchema, evaluate, isPayroll, parseImport, money, type AnalysisInput, type TransactionInput } from "@/lib/analysis";
 import { createAnalysis } from "@/lib/analysis.functions";
 
 const today = () => new Date().toISOString().slice(0, 10);
