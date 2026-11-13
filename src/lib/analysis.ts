@@ -115,29 +115,103 @@ export const number = (n: number) => n.toLocaleString("pt-BR");
 export const money = (n: number) => n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 export const percent = (n: number) => `${n.toLocaleString("pt-BR", { maximumFractionDigits: 1 })}%`;
 
+const norm = (v: unknown) => String(v ?? "").trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\(.*?\)/g, "").replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "");
+const HEADER_ALIASES: Record<string, string[]> = {
+  id: ["id", "codigo", "cod", "identificador", "n", "numero", "transacao", "id_transacao"],
+  data: ["data", "date", "data_transacao", "data_lancamento", "dt", "vencimento", "data_pagamento"],
+  descricao: ["descricao", "historico", "description", "detalhe", "descricao_transacao"],
+  fornecedor: ["fornecedor", "cliente", "fornecedor_cliente", "favorecido", "beneficiario", "supplier", "contraparte", "funcionario"],
+  valor: ["valor", "valor_pago", "montante", "value", "amount", "valor_total", "total"],
+  tipo: ["tipo", "type", "tipo_transacao", "natureza"],
+  categoria: ["categoria", "category", "centro_de_custo", "conta", "grupo"],
+  cadastrado: ["cadastrado", "fornecedor_cadastrado", "registered", "cadastro"],
+  aprovado: ["aprovado", "aprovacao", "approved", "aprovacao_registrada"],
+  controle: ["controle", "resultado_controle", "resultado_do_controle", "status_controle", "control"],
+  risco: ["risco", "classificacao_risco", "nivel_risco", "risk"],
+  valor_nf: ["valor_nf", "valor_nota", "valor_nota_fiscal", "nf", "nota_fiscal"],
+  estoque_contabil: ["estoque_contabil", "qtd_contabil", "saldo_contabil"],
+  estoque_fisico: ["estoque_fisico", "qtd_fisica", "contagem_fisica", "inventario"],
+  funcionario_cadastrado: ["funcionario_cadastrado", "cadastro_rh", "consta_rh"],
+  valor_original: ["valor_original", "valor_anterior", "valor_antes"],
+};
+const REQUIRED = ["id", "data", "descricao", "fornecedor", "valor", "tipo", "categoria", "cadastrado", "aprovado", "controle"];
+const OPTIONS = {
+  type: ["Pagamento", "Transferência", "Compra", "Recebimento", "Ajuste", "Outros"],
+  control: ["Conforme", "Não conforme", "Em análise", "Não aplicável"],
+  risk: ["Crítico", "Alto", "Médio", "Baixo"],
+};
+const pick = (list: string[], v: string) => list.find(o => norm(o) === norm(v)) ?? v;
+function mapHeaders(row: unknown[]) {
+  const map = new Map<string, number>();
+  row.forEach((h, i) => { const n = norm(h); for (const [key, aliases] of Object.entries(HEADER_ALIASES)) if (!map.has(key) && aliases.includes(n)) map.set(key, i); });
+  return map;
+}
+export function toNumber(raw: unknown): number {
+  if (typeof raw === "number") return raw;
+  let t = String(raw ?? "").replace(/R\$|\s/g, "");
+  const neg = /^\(.*\)$/.test(t); t = t.replace(/[()]/g, "");
+  if (t.includes(",") && t.includes(".")) t = t.lastIndexOf(",") > t.lastIndexOf(".") ? t.replace(/\./g, "").replace(",", ".") : t.replace(/,/g, "");
+  else if (t.includes(",")) t = t.replace(",", ".");
+  else if (/^\d{1,3}(\.\d{3})+$/.test(t)) t = t.replace(/\./g, "");
+  const n = t === "" ? NaN : Number(t);
+  return neg ? -n : n;
+}
+function toDate(raw: unknown): string {
+  if (raw instanceof Date) return raw.toISOString().slice(0, 10);
+  if (typeof raw === "number" && raw > 20000 && raw < 80000) return new Date(Date.UTC(1899, 11, 30) + raw * 86400000).toISOString().slice(0, 10);
+  const t = String(raw ?? "").trim();
+  let m = t.match(/^(\d{1,2})[/.-](\d{1,2})[/.-](\d{4})/);
+  if (m) return `${m[3]}-${m[2]!.padStart(2, "0")}-${m[1]!.padStart(2, "0")}`;
+  m = t.match(/^(\d{4})[/-](\d{1,2})[/-](\d{1,2})/);
+  if (m) return `${m[1]}-${m[2]!.padStart(2, "0")}-${m[3]!.padStart(2, "0")}`;
+  return t;
+}
+export type SheetResult = { sheet: string; imported: number; skipped?: string };
+/** Lê uma ou várias abas. Abas sem as colunas obrigatórias (ex.: instruções) são ignoradas. */
+export function parseWorkbook(sheets: { sheet: string; data: unknown[][] }[]): { transactions: TransactionInput[]; report: SheetResult[] } {
+  const transactions: TransactionInput[] = []; const report: SheetResult[] = []; const errors: string[] = [];
+  const multi = sheets.length > 1;
+  for (const { sheet, data } of sheets) {
+    const rows = data.filter(r => Array.isArray(r) && r.some(v => v !== null && v !== undefined && String(v).trim() !== ""));
+    if (!rows.length) { report.push({ sheet, imported: 0, skipped: "aba vazia" }); continue; }
+    const headerIndex = rows.slice(0, 15).findIndex(r => { const m = mapHeaders(r); return REQUIRED.filter(k => m.has(k)).length >= 5; });
+    if (headerIndex < 0) { if (!multi) throw new Error(`Colunas ausentes: ${REQUIRED.join(", ")}.`); report.push({ sheet, imported: 0, skipped: "sem cabeçalho de transações" }); continue; }
+    const headers = mapHeaders(rows[headerIndex]!);
+    const missing = REQUIRED.filter(k => !headers.has(k));
+    const where = (line: number) => multi ? `Aba "${sheet}", linha ${line}` : `Linha ${line}`;
+    if (missing.length) { errors.push(`${multi ? `Aba "${sheet}": c` : "C"}olunas ausentes: ${missing.join(", ")}.`); continue; }
+    const body = rows.slice(headerIndex + 1);
+    if (!body.length) { report.push({ sheet, imported: 0, skipped: "sem transações" }); continue; }
+    let count = 0;
+    body.forEach((row, n) => {
+      const line = data.indexOf(row) + 1 || headerIndex + n + 2;
+      const get = (h: string) => headers.has(h) ? row[headers.get(h)!] : undefined;
+      const text = (h: string) => String(get(h) ?? "").trim();
+      const issues: string[] = [];
+      const bool = (h: string, required: boolean) => {
+        const v = norm(get(h)); if (v === "") { if (required) issues.push(`${h} vazio`); return undefined; }
+        if (["sim", "s", "true", "1", "yes", "x", "verdadeiro"].includes(v)) return true;
+        if (["nao", "n", "false", "0", "no", "falso"].includes(v)) return false;
+        issues.push(`${h} deve ser Sim ou Não`); return undefined;
+      };
+      const num = (h: string) => { if (text(h) === "") return undefined; const v = toNumber(get(h)); if (!Number.isFinite(v)) { issues.push(`${h} deve ser numérico`); return undefined; } return v; };
+      const value = toNumber(get("valor"));
+      if (!Number.isFinite(value)) issues.push("valor inválido");
+      const candidate = { id: text("id"), date: toDate(get("data")), description: text("descricao"), supplier: text("fornecedor"), value: Math.abs(value), type: pick(OPTIONS.type, text("tipo") || "Outros"), category: text("categoria"), registered: bool("cadastrado", true), approved: bool("aprovado", true), control: pick(OPTIONS.control, text("controle") || "Não aplicável"), risk: text("risco") ? pick(OPTIONS.risk, text("risco")) : undefined, invoice_value: num("valor_nf"), book_qty: num("estoque_contabil"), physical_qty: num("estoque_fisico"), employee_registered: bool("funcionario_cadastrado", false), original_value: num("valor_original") };
+      const parsed = transactionSchema.safeParse(candidate);
+      if (!parsed.success) issues.push(...parsed.error.issues.map(i => { const f = String(i.path[0] ?? ""); return { id: "id vazio", date: "data inválida", description: "descrição vazia", supplier: "fornecedor vazio", type: `tipo deve ser ${OPTIONS.type.join("/")}`, control: `controle deve ser ${OPTIONS.control.join("/")}`, risk: `risco deve ser ${OPTIONS.risk.join("/")}`, category: "categoria vazia" }[f] ?? `${f} inválido`; }));
+      if (issues.length) { errors.push(`${where(line)}: ${[...new Set(issues)].join(", ")}.`); return; }
+      const tx = parsed.data!;
+      if (multi && transactions.some(t => t.id === tx.id)) tx.id = `${sheet}-${tx.id}`.slice(0, 100);
+      transactions.push(tx); count++;
+    });
+    report.push({ sheet, imported: count });
+  }
+  if (errors.length) throw new Error(errors.slice(0, 6).join(" ") + (errors.length > 6 ? ` (+${errors.length - 6} outros problemas)` : ""));
+  if (!transactions.length) throw new Error("Nenhuma aba contém transações. Use o modelo como referência para os cabeçalhos.");
+  return { transactions, report };
+}
 export function parseImport(rows: unknown[][]): TransactionInput[] {
   if (rows.length < 2) throw new Error("A planilha precisa de cabeçalhos e pelo menos uma transação.");
-  const headers = (rows[0] ?? []).map(h => String(h ?? "").trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""));
-  const required = ["id", "data", "descricao", "fornecedor", "valor", "tipo", "categoria", "cadastrado", "aprovado", "controle"];
-  const missing = required.filter(h => !headers.includes(h));
-  if (missing.length) throw new Error(`Colunas ausentes: ${missing.join(", ")}.`);
-  return rows.slice(1).filter(row => row.some(v => v !== null && v !== "")).map((row, index) => {
-    const get = (h: string) => row[headers.indexOf(h)];
-    const text = (h: string) => String(get(h) ?? "").trim();
-    const bool = (h: string) => {
-      const value = text(h).toLowerCase();
-      if (["sim", "true", "1"].includes(value)) return true;
-      if (["nao", "não", "false", "0"].includes(value)) return false;
-      throw new Error(`Linha ${index + 2}: ${h} deve ser Sim ou Não.`);
-    };
-    const toNum = (raw: unknown, t: string) => typeof raw === "number" ? raw : Number(t.replace(/R\$\s*/g, "").replace(/\.(?=\d{3}(?:\D|$))/g, "").replace(",", "."));
-    const num = (h: string) => { if (!headers.includes(h) || text(h) === "") return undefined; const n = toNum(get(h), text(h)); if (!Number.isFinite(n)) throw new Error(`Linha ${index + 2}: ${h} deve ser numérico.`); return n; };
-    const optBool = (h: string) => headers.includes(h) && text(h) !== "" ? bool(h) : undefined;
-    const rawValue = get("valor");
-    const rawDate = get("data");
-    const dateText = rawDate instanceof Date ? rawDate.toISOString().slice(0, 10) : text("data").replace(/^(\d{2})\/(\d{2})\/(\d{4})$/, "$3-$2-$1");
-    const parsed = transactionSchema.safeParse({ id: text("id"), date: dateText, description: text("descricao"), supplier: text("fornecedor"), value: typeof rawValue === "number" ? rawValue : Number(text("valor").replace(/R\$\s*/g, "").replace(/\.(?=\d{3}(?:\D|$))/g, "").replace(",", ".")), type: text("tipo"), category: text("categoria"), registered: bool("cadastrado"), approved: bool("aprovado"), control: text("controle"), risk: text("risco") || undefined, invoice_value: num("valor_nf"), book_qty: num("estoque_contabil"), physical_qty: num("estoque_fisico"), employee_registered: optBool("funcionario_cadastrado"), original_value: num("valor_original") });
-    if (!parsed.success) throw new Error(`Linha ${index + 2}: confira data, valor, tipo, controle e campos obrigatórios.`);
-    return parsed.data;
-  });
+  return parseWorkbook([{ sheet: "Planilha", data: rows }]).transactions;
 }

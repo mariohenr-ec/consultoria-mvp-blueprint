@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useAnalyses } from "./analysis-provider";
 import { AnalysisAuth } from "./analysis-auth";
-import { analysisSchema, evaluate, isPayroll, parseImport, money, type AnalysisInput, type TransactionInput } from "@/lib/analysis";
+import { analysisSchema, evaluate, isPayroll, parseWorkbook, money, type SheetResult, type AnalysisInput, type TransactionInput } from "@/lib/analysis";
 import { createAnalysis } from "@/lib/analysis.functions";
 
 const today = () => new Date().toISOString().slice(0, 10);
@@ -25,6 +25,7 @@ function AnalysisForm() {
   const [step, setStep] = useState(0);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [report, setReport] = useState<SheetResult[]>([]);
   const [data, setData] = useState<AnalysisInput>({ name: "", start_date: today(), end_date: today(), area: "", system: "", policy: "", reviewer: "", source: "Manual", threshold: 100000, transactions: [blank()] });
   const set = <K extends keyof AnalysisInput>(key: K, value: AnalysisInput[K]) => setData(d => ({ ...d, [key]: value }));
   const update = (index: number, field: keyof TransactionInput, value: unknown) => setData(d => ({ ...d, transactions: d.transactions.map((r, i) => i === index ? { ...r, [field]: value } : r) }));
@@ -33,18 +34,20 @@ function AnalysisForm() {
     setError(""); setBusy(true);
     try {
       if (file.size > 10 * 1024 * 1024) throw new Error("Arquivo muito grande. Máximo: 10 MB.");
-      let rows: unknown[][];
-      if (/\.xlsx$/i.test(file.name)) { const { readSheet } = await import("read-excel-file/browser"); rows = await readSheet(file); }
-      else if (/\.csv$/i.test(file.name)) {
+      let sheets: { sheet: string; data: unknown[][] }[];
+      if (/\.xlsx$/i.test(file.name)) { const { default: readXlsx } = await import("read-excel-file/browser"); sheets = (await readXlsx(file)).map(s => ({ sheet: s.sheet, data: s.data as unknown[][] })); }
+      else if (/\.(csv|txt)$/i.test(file.name)) {
         const { default: Papa } = await import("papaparse");
-        const parsed = Papa.parse<string[]>(await file.text(), { skipEmptyLines: true });
-        if (parsed.errors.length) throw new Error("CSV inválido. Confira separadores e aspas.");
-        rows = parsed.data;
+        const parsed = Papa.parse<string[]>((await file.text()).replace(/^\uFEFF/, ""), { skipEmptyLines: "greedy", delimitersToGuess: [";", ",", "\t", "|"] });
+        if (parsed.errors.some(e => e.type !== "Delimiter")) throw new Error(`CSV inválido na linha ${(parsed.errors[0]?.row ?? 0) + 1}. Confira separadores e aspas.`);
+        sheets = [{ sheet: file.name, data: parsed.data }];
       } else throw new Error("Envie um arquivo XLSX ou CSV.");
-      const imported = parseImport(rows);
+      const { transactions: imported, report: rep } = parseWorkbook(sheets);
       if (imported.length > 5000) throw new Error("Máximo de 5.000 transações por análise.");
-      set("transactions", imported);
-      toast.success(`${imported.length} transações importadas para revisão`);
+      const dates = imported.map(t => t.date).sort();
+      setData(d => ({ ...d, transactions: imported, start_date: dates[0]! < d.start_date ? dates[0]! : d.start_date, end_date: dates.at(-1)! > d.end_date ? dates.at(-1)! : d.end_date }));
+      setReport(rep);
+      toast.success(`${imported.length} transações importadas de ${rep.filter(r => r.imported).length} aba(s)`);
     } catch (e) { setError(e instanceof Error ? e.message : "Falha na importação."); }
     finally { setBusy(false); }
   }
@@ -81,7 +84,7 @@ function AnalysisForm() {
       <SelectField label="Forma de inclusão" value={data.source} options={["Manual", "Planilha"]} onChange={s => set("source", s as "Manual" | "Planilha")} />
     </div>}
     {step === 1 && <div className="space-y-4">
-      {data.source === "Planilha" && <div className="flex flex-wrap items-center gap-3 border-b pb-4"><label className="text-sm"><Upload className="mb-1 h-5 w-5 text-info" />Planilha XLSX ou CSV<Input type="file" accept=".xlsx,.csv" disabled={busy} onChange={e => upload(e.target.files?.[0])} /></label><Button variant="outline" onClick={template}><Download />Baixar modelo CSV</Button></div>}
+      {data.source === "Planilha" && <div className="flex flex-wrap items-center gap-3 border-b pb-4"><label className="text-sm"><Upload className="mb-1 h-5 w-5 text-info" />Planilha XLSX ou CSV<Input type="file" accept=".xlsx,.csv" disabled={busy} onChange={e => upload(e.target.files?.[0])} /></label><Button variant="outline" onClick={template}><Download />Baixar modelo CSV</Button><p className="w-full text-xs text-muted-foreground">XLSX com várias abas: todas as abas com cabeçalho de transações são lidas; abas de instruções ou vazias são ignoradas. Nomes de colunas comuns (ex.: "Histórico", "Favorecido", "Valor pago") são reconhecidos e o período é ajustado às datas importadas.</p>{report.length > 0 && <ul aria-label="Abas lidas" className="w-full text-sm">{report.map(r => <li key={r.sheet}><strong>{r.sheet}</strong>: {r.skipped ? `ignorada (${r.skipped})` : `${r.imported} transações`}</li>)}</ul>}</div>}
       {data.transactions.map((r, i) => <fieldset key={i} className="space-y-3 border-b pb-4"><legend className="flex w-full items-center justify-between text-sm font-semibold">Transação {i + 1}<Button variant="ghost" size="icon" aria-label={`Remover transação ${i + 1}`} disabled={data.transactions.length === 1} onClick={() => set("transactions", data.transactions.filter((_, n) => n !== i))}><Trash2 /></Button></legend>
         <div className="grid gap-3 sm:grid-cols-3">
           {([["id", "ID *"], ["description", "Descrição *"], ["supplier", "Fornecedor / cliente *"], ["category", "Categoria *"]] as const).map(([field, label]) => <label key={field} className="text-sm">{label}<Input value={r[field]} onChange={e => update(i, field, e.target.value)} /></label>)}
