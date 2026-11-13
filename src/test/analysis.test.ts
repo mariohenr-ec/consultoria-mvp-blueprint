@@ -38,4 +38,21 @@ describe("Filtro de período", () => {
   it("usa a data mais recente do conjunto como referência", () => {
     expect(maxDate(["08/06/2024", "12/06/2024", "10/06/2024"])).toBe("2024-06-12");
   });
+});describe("Importação de várias abas", () => {
+  const h = ["id", "data", "descricao", "fornecedor", "valor", "tipo", "categoria", "cadastrado", "aprovado", "controle"];
+  it("lê todas as abas com transações e ignora abas de instruções", async () => {
+    const { parseWorkbook } = await import("@/lib/analysis");
+    const r = parseWorkbook([{ sheet: "Instruções", data: [["Leia antes"]] }, { sheet: "Out", data: [h, ["T1", "01/10/2026", "a", "F", "10", "Pagamento", "C", "Sim", "Sim", "Conforme"]] }, { sheet: "Nov", data: [["Relatório"], h, ["T1", "2026-11-01", "b", "G", "20", "pagamento", "C", "S", "N", "não conforme"]] }]);
+    expect(r.transactions.length).toBe(2);
+    expect(r.transactions[1]?.id).toBe("Nov-T1");
+    expect(r.transactions[1]?.control).toBe("Não conforme");
+    expect(r.report[0]?.skipped).toBeTruthy();
+  });
+  it("reconhece cabeçalhos alternativos e números em vários formatos", async () => {
+    const { parseWorkbook, toNumber } = await import("@/lib/analysis");
+    const r = parseWorkbook([{ sheet: "A", data: [["Código", "Data", "Histórico", "Favorecido", "Valor (R$)", "Tipo", "Categoria", "Cadastrado", "Aprovado", "Controle"], ["X", 46327, "a", "F", "R$ 1.234,56", "Compra", "C", "Sim", "Sim", "Conforme"]] }]);
+    expect(r.transactions[0]?.value).toBe(1234.56);
+    expect(toNumber("1,234.50")).toBe(1234.5);
+    expect(toNumber("1.500")).toBe(1500);
+  });
 });
