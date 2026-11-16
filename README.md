@@ -1,6 +1,6 @@
 # Consultoria Mvp Blueprint
 
-A partir das imagens de criação de um MVP para consultoria acima. Desenvolva esse prototipo para ser usado com fidelidade ao que se informa em cada uma das imagens. Mantenha o padrão de cores. Apresente a melhor versão com base no que foi mostrado para depois apresentarmos evolução no uso
+Tentativa de Desenvolver uma interface operacional que desenvolva uma auditoria contínua.
 
 This project was built with [Lovable](https://lovable.dev).
 
